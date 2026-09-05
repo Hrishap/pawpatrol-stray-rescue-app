@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+
+# Env files (never commit secrets)
+.env
+.env.local
+*.env
+
+# Supabase local runtime state
+supabase/.temp/
+supabase/.branches/
+
+# Editor
+.vscode/
+.idea/

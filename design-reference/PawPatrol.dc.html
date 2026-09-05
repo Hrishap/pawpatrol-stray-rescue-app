@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#e7ecdf;}
+  a{color:#1f5d50;}
+  a:hover{color:#163832;}
+  @keyframes ppSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes ppPop{0%{opacity:0;transform:translateY(6px) scale(.98)}100%{opacity:1;transform:translateY(0) scale(1)}}
+  @keyframes ppFade{0%{opacity:0;transform:translate(-50%,8px)}100%{opacity:1;transform:translate(-50%,0)}}
+  @keyframes ppPulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.55}100%{transform:translate(-50%,-50%) scale(2.4);opacity:0}}
+  @keyframes ppBreath{0%,100%{box-shadow:0 8px 20px rgba(23,48,43,0.35),0 0 0 0 rgba(31,93,80,0.35)}50%{box-shadow:0 8px 20px rgba(23,48,43,0.35),0 0 0 10px rgba(31,93,80,0)}}
+  @keyframes ppBlob{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(6px,-8px) scale(1.05)}}
+  @keyframes ppDot{0%,100%{opacity:1}50%{opacity:.35}}
+</style>
+</helmet>
+<div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;padding:48px 24px;box-sizing:border-box;background:radial-gradient(circle at 18% 12%, rgba(31,93,80,0.10), transparent 40%), radial-gradient(circle at 85% 82%, rgba(31,93,80,0.08), transparent 45%), #e7ecdf;font-family:'Plus Jakarta Sans',sans-serif;">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ isDark }}" hint-size="402px,874px">
+<div style="height:100%;width:100%;position:relative;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif;">
+
+<!-- ONBOARDING -->
+<sc-if value="{{ isOnboarding }}" hint-placeholder-val="{{ true }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#163832;color:#fbf6ea;box-sizing:border-box;">
+  <div style="display:flex;justify-content:flex-end;padding:60px 20px 0;">
+    <div onClick="{{ skipOnboarding }}" style="font-size:14px;font-weight:600;color:rgba(251,246,234,0.7);cursor:pointer;padding:6px 10px;">{{ t.skip }}</div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 32px;text-align:center;">
+    <div style="width:100%;max-width:280px;height:200px;border-radius:24px;position:relative;overflow:hidden;background:linear-gradient(160deg, rgba(251,246,234,0.10), rgba(251,246,234,0.03));border:1px solid rgba(251,246,234,0.22);margin-bottom:36px;">
+      <div style="position:absolute;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle, rgba(251,246,234,0.30), rgba(251,246,234,0) 70%);top:-30px;left:-20px;animation:ppBlob 6s ease-in-out infinite;"></div>
+      <div style="position:absolute;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle, rgba(232,162,58,0.35), rgba(232,162,58,0) 70%);bottom:-20px;right:10px;animation:ppBlob 7s ease-in-out infinite reverse;"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+        <span style="font-family:ui-monospace,monospace;font-size:11.5px;color:rgba(251,246,234,0.7);letter-spacing:.3px;">illustration placeholder</span>
+      </div>
+    </div>
+    <div style="font-size:26px;font-weight:800;line-height:1.25;white-space:pre-line;margin-bottom:14px;">{{ onboardSlide.title }}</div>
+    <div style="font-size:15px;line-height:1.55;color:rgba(251,246,234,0.75);max-width:300px;">{{ onboardSlide.body }}</div>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:center;padding-bottom:26px;">
+    <sc-for list="{{ onboardDots }}" as="dot" hint-placeholder-count="3">
+      <div style="width:{{ dot.size }}px;height:8px;border-radius:4px;background:{{ dot.color }};transition:all .2s;"></div>
+    </sc-for>
+  </div>
+  <div style="padding:0 24px 40px;">
+    <div onClick="{{ onboardNext }}" style-hover="{ transform: 'translateY(-2px)', boxShadow: '0 8px 18px rgba(0,0,0,0.25)' }" style-active="{ transform: 'scale(0.97)' }" style="height:52px;border-radius:26px;background:#fbf6ea;color:#163832;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;">{{ onboardButtonLabel }}</div>
+  </div>
+</div>
+</sc-if>
+
+<!-- ROLE SELECT -->
+<sc-if value="{{ isRoleSelect }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;padding:64px 24px 32px;overflow:auto;">
+  <div style="font-size:24px;font-weight:800;color:#17302b;margin-bottom:8px;">{{ t.howHelp }}</div>
+  <div style="font-size:14px;color:rgba(23,48,43,0.6);line-height:1.5;margin-bottom:24px;">{{ t.howHelpSub }}</div>
+  <div style="display:flex;flex-direction:column;gap:12px;flex:1;">
+    <div onClick="{{ selectReporterRole }}" style-hover="{ transform: 'translateY(-2px)', boxShadow: '0 6px 16px rgba(23,48,43,0.10)' }" style="border:2px solid {{ reporterBorder }};background:{{ reporterBg }};border-radius:18px;padding:18px;display:flex;gap:14px;align-items:flex-start;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease, background .2s ease;">
+      <div style="width:44px;height:44px;border-radius:12px;background:{{ reporterIconBg }};flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fbf6ea;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="#fbf6ea" stroke-width="1.6"/><circle cx="12" cy="13.5" r="3.5" stroke="#fbf6ea" stroke-width="1.6"/></svg></div>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:700;color:#17302b;margin-bottom:4px;">{{ t.reporterLabel }}</div>
+        <div style="font-size:13px;color:rgba(23,48,43,0.6);line-height:1.45;">{{ t.reporterDesc }}</div>
+      </div>
+      <div style="width:22px;height:22px;border-radius:50%;border:2px solid {{ reporterBorder }};background:{{ reporterDotBg }};flex-shrink:0;margin-top:2px;"></div>
+    </div>
+    <div onClick="{{ selectVolunteerRole }}" style-hover="{ transform: 'translateY(-2px)', boxShadow: '0 6px 16px rgba(23,48,43,0.10)' }" style="border:2px solid {{ volunteerBorder }};background:{{ volunteerBg }};border-radius:18px;padding:18px;display:flex;gap:14px;align-items:flex-start;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease, background .2s ease;">
+      <div style="width:44px;height:44px;border-radius:12px;background:{{ volunteerIconBg }};flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fbf6ea;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.4-9.6-9C.5 8.7 2 5 5.5 5c2 0 3.3 1.2 4 2.2C10.2 6.2 11.5 5 13.5 5 17 5 18.5 8.7 16.6 12 14 16.6 12 21 12 21z" stroke="#fbf6ea" stroke-width="1.6"/></svg></div>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:700;color:#17302b;margin-bottom:4px;">{{ t.volunteerLabel }}</div>
+        <div style="font-size:13px;color:rgba(23,48,43,0.6);line-height:1.45;">{{ t.volunteerDesc }}</div>
+      </div>
+      <div style="width:22px;height:22px;border-radius:50%;border:2px solid {{ volunteerBorder }};background:{{ volunteerDotBg }};flex-shrink:0;margin-top:2px;"></div>
+    </div>
+    <div onClick="{{ selectNgoRole }}" style-hover="{ transform: 'translateY(-2px)', boxShadow: '0 6px 16px rgba(23,48,43,0.10)' }" style="border:2px solid {{ ngoBorder }};background:{{ ngoBg }};border-radius:18px;padding:18px;display:flex;gap:14px;align-items:flex-start;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease, border-color .2s ease, background .2s ease;">
+      <div style="width:44px;height:44px;border-radius:12px;background:{{ ngoIconBg }};flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fbf6ea;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11z" stroke="#fbf6ea" stroke-width="1.6"/><circle cx="12" cy="10" r="2.3" stroke="#fbf6ea" stroke-width="1.6"/></svg></div>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:700;color:#17302b;margin-bottom:4px;">{{ t.ngoLabel }}</div>
+        <div style="font-size:13px;color:rgba(23,48,43,0.6);line-height:1.45;">{{ t.ngoDesc }}</div>
+      </div>
+      <div style="width:22px;height:22px;border-radius:50%;border:2px solid {{ ngoBorder }};background:{{ ngoDotBg }};flex-shrink:0;margin-top:2px;"></div>
+    </div>
+  </div>
+  <div onClick="{{ confirmRole }}" style-active="{ transform: 'scale(0.97)' }" style="height:52px;border-radius:26px;background:{{ roleContinueBg }};color:#fbf6ea;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;margin-top:20px;transition:transform .15s ease, background .2s ease;">{{ t.continueBtn }}</div>
+</div>
+</sc-if>
+
+<!-- HOME / MAP -->
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;">
+  <div style="padding:58px 20px 12px;display:flex;align-items:center;gap:10px;">
+    <div style="flex:1;">
+      <div style="font-size:11px;font-weight:600;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;">{{ t.liveRescueMap }}</div>
+      <div style="font-size:16px;font-weight:700;color:#17302b;display:flex;align-items:center;gap:5px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11z" stroke="#1f5d50" stroke-width="1.8"/><circle cx="12" cy="10" r="2.3" fill="#1f5d50"/></svg>{{ t.location }}</div>
+    </div>
+    <div onClick="{{ goNotifications }}" style="width:40px;height:40px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;border:1px solid rgba(23,48,43,0.08);">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M6 10a6 6 0 1112 0c0 3 1 5 2 6H4c1-1 2-3 2-6z" stroke="#17302b" stroke-width="1.7"/><path d="M10 20a2 2 0 004 0" stroke="#17302b" stroke-width="1.7"/></svg>
+      <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:#de5b3e;animation:ppDot 1.6s ease-in-out infinite;"></div></sc-if>
+    </div>
+    <div style="width:40px;height:40px;border-radius:14px;background:#1f5d50;display:flex;align-items:center;justify-content:center;color:#fbf6ea;font-weight:700;font-size:15px;">R</div>
+  </div>
+  <div style="display:flex;gap:8px;padding:4px 20px 12px;overflow-x:auto;">
+    <sc-for list="{{ speciesChips }}" as="chip" hint-placeholder-count="4">
+      <div onClick="{{ chip.select }}" style="flex-shrink:0;padding:7px 14px;border-radius:16px;background:{{ chip.bg }};color:{{ chip.color }};font-size:13px;font-weight:600;cursor:pointer;border:1px solid {{ chip.border }};">{{ chip.label }}</div>
+    </sc-for>
+  </div>
+  <div style="display:flex;gap:8px;padding:0 20px 10px;overflow-x:auto;">
+    <sc-for list="{{ urgencyChips }}" as="chip" hint-placeholder-count="4">
+      <div onClick="{{ chip.select }}" style="flex-shrink:0;padding:6px 12px;border-radius:14px;background:{{ chip.bg }};color:{{ chip.color }};font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;border:1px solid {{ chip.border }};">
+        <sc-if value="{{ chip.showDot }}" hint-placeholder-val="{{ false }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ chip.dotColor }};"></span></sc-if>
+        {{ chip.label }}
+      </div>
+    </sc-for>
+  </div>
+  <div style="flex:1;position:relative;margin:0 16px 12px;border-radius:20px;overflow:hidden;background:#dfe6d4;background-image:linear-gradient(rgba(23,48,43,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(23,48,43,0.06) 1px, transparent 1px);background-size:26px 26px;">
+    <sc-for list="{{ mapPins }}" as="pin" hint-placeholder-count="4">
+      <sc-if value="{{ pin.pulse }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;left:{{ pin.x }}%;top:{{ pin.y }}%;width:26px;height:26px;border-radius:50%;background:{{ pin.color }};transform:translate(-50%,-50%);animation:ppPulse 1.8s ease-out infinite;pointer-events:none;"></div>
+      </sc-if>
+      <div onClick="{{ pin.select }}" style-hover="{ transform: 'translate(-50%,-50%) scale(1.15)' }" style="position:absolute;left:{{ pin.x }}%;top:{{ pin.y }}%;width:26px;height:26px;border-radius:50%;background:{{ pin.color }};border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.25);transform:translate(-50%,-50%);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s ease;">
+        <span style="width:6px;height:6px;border-radius:50%;background:#fff;"></span>
+      </div>
+    </sc-for>
+    <sc-if value="{{ hasSelectedPin }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:12px;right:12px;bottom:12px;background:#fff;border-radius:16px;padding:12px;display:flex;gap:12px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,0.15);animation:ppPop .18s ease;">
+        <div style="width:52px;height:52px;border-radius:12px;flex-shrink:0;background:repeating-linear-gradient(135deg,rgba(23,48,43,0.10) 0 6px, rgba(23,48,43,0.04) 6px 12px);"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:#17302b;">{{ selectedPin.species }} · {{ selectedPin.urgencyLabel }}</div>
+          <div style="font-size:12px;color:rgba(23,48,43,0.55);">{{ selectedPin.distance }} · {{ selectedPin.time }}</div>
+        </div>
+        <div onClick="{{ selectedPin.view }}" style="padding:9px 14px;background:#1f5d50;color:#fbf6ea;border-radius:12px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;">View</div>
+      </div>
+    </sc-if>
+    <div onClick="{{ fabAction }}" style-hover="{ transform: 'scale(1.08)' }" style-active="{ transform: 'scale(0.94)' }" style="position:absolute;right:14px;bottom:{{ fabBottom }}px;width:56px;height:56px;border-radius:50%;background:#1f5d50;box-shadow:0 8px 20px rgba(23,48,43,0.35);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease;animation:ppBreath 2.6s ease-in-out infinite;">
+      <sc-if value="{{ isReporterRole }}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fbf6ea" stroke-width="2.2" stroke-linecap="round"/></svg></sc-if>
+      <sc-if value="{{ isVolunteerRole }}" hint-placeholder-val="{{ false }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4 10-10" stroke="#fbf6ea" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+    </div>
+  </div>
+  <div style="height:86px;flex-shrink:0;"></div>
+</div>
+</sc-if>
+
+<!-- REPORT FLOW -->
+<sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;">
+  <div style="padding:58px 20px 14px;display:flex;align-items:center;gap:12px;">
+    <div onClick="{{ reportBack }}" style="width:34px;height:34px;border-radius:12px;background:#fff;border:1px solid rgba(23,48,43,0.08);display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#17302b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div style="flex:1;display:flex;gap:6px;">
+      <sc-for list="{{ reportStepDots }}" as="d" hint-placeholder-count="4">
+        <div style="height:5px;flex:1;border-radius:3px;background:{{ d.color }};"></div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- step 1: capture -->
+  <sc-if value="{{ isReportStep1 }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:8px 20px 20px;">
+      <div style="font-size:20px;font-weight:800;color:#17302b;margin-bottom:4px;">{{ t.snapPhoto }}</div>
+      <div style="font-size:13.5px;color:rgba(23,48,43,0.6);margin-bottom:16px;">{{ t.snapSub }}</div>
+      <sc-if value="{{ report.cameraActive }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;border-radius:20px;background:linear-gradient(160deg, rgba(31,93,80,0.14), rgba(23,48,43,0.06));border:1.5px solid #1f5d50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;position:relative;">
+          <div style="position:absolute;top:14px;left:14px;display:flex;align-items:center;gap:6px;background:rgba(23,48,43,0.55);padding:5px 10px;border-radius:10px;">
+            <span style="width:8px;height:8px;border-radius:50%;background:#de5b3e;animation:ppDot 1s ease-in-out infinite;"></span>
+            <span style="font-size:11px;font-weight:700;color:#fbf6ea;">LIVE</span>
+          </div>
+          <svg width="46" height="46" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="#1f5d50" stroke-width="1.4"/><circle cx="12" cy="13.5" r="3.5" stroke="#1f5d50" stroke-width="1.4"/></svg>
+          <span style="font-family:ui-monospace,monospace;font-size:12px;color:#1f5d50;">camera viewfinder — aim &amp; tap capture</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ report.cameraIdle }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;border-radius:20px;background:repeating-linear-gradient(135deg, rgba(23,48,43,0.08) 0 12px, rgba(23,48,43,0.03) 12px 24px);border:1.5px dashed rgba(23,48,43,0.25);display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:ui-monospace,monospace;font-size:12px;color:rgba(23,48,43,0.55);">camera viewfinder</span>
+        </div>
+      </sc-if>
+      <input type="file" accept="image/*" ref="{{ galleryInputRef }}" onChange="{{ handleFileChosen }}" style="display:none" />
+      <div style="display:flex;align-items:center;justify-content:center;padding:20px 0 8px;">
+        <div onClick="{{ shutterAction }}" style-hover="{ transform: 'scale(1.06)' }" style-active="{ transform: 'scale(0.94)' }" style="width:68px;height:68px;border-radius:50%;background:{{ shutterBg }};border:4px solid #fff;box-shadow:{{ shutterShadow }};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease, background .2s ease;">
+          <sc-if value="{{ report.cameraActive }}" hint-placeholder-val="{{ false }}"><span style="width:26px;height:26px;border-radius:50%;background:#de5b3e;"></span></sc-if>
+          <sc-if value="{{ report.cameraIdle }}" hint-placeholder-val="{{ true }}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="#fbf6ea" stroke-width="1.8"/><circle cx="12" cy="13.5" r="3.5" stroke="#fbf6ea" stroke-width="1.8"/></svg></sc-if>
+        </div>
+      </div>
+      <sc-if value="{{ report.cameraActive }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;font-size:12px;color:rgba(23,48,43,0.55);margin-top:6px;">{{ t.snapPhoto }}</div>
+      </sc-if>
+      <sc-if value="{{ captureChoiceOpen }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ closeCaptureChoice }}" style="position:absolute;inset:0;background:rgba(23,48,43,0.45);display:flex;align-items:flex-end;z-index:40;">
+          <div onClick="{{ stopPropagation }}" style="width:100%;background:#fbf6ea;border-radius:24px 24px 0 0;padding:20px 20px 30px;">
+            <div style="font-size:15px;font-weight:700;color:#17302b;margin-bottom:14px;text-align:center;">{{ t.snapPhoto }}</div>
+            <div onClick="{{ chooseTakePhoto }}" style-hover="{ background: '#e7f2ec' }" style="display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:14px;cursor:pointer;transition:background .15s ease;">
+              <div style="width:38px;height:38px;border-radius:11px;background:#1f5d50;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="#fbf6ea" stroke-width="1.7"/><circle cx="12" cy="13.5" r="3.5" stroke="#fbf6ea" stroke-width="1.7"/></svg></div>
+              <span style="font-size:14.5px;font-weight:700;color:#17302b;">{{ t.snapPhoto }}</span>
+            </div>
+            <div onClick="{{ chooseGallery }}" style-hover="{ background: '#e7f2ec' }" style="display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:14px;cursor:pointer;transition:background .15s ease;">
+              <div style="width:38px;height:38px;border-radius:11px;background:rgba(23,48,43,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#17302b" stroke-width="1.6"/><circle cx="9" cy="10.5" r="1.6" stroke="#17302b" stroke-width="1.4"/><path d="M4 16l5-4 3 2.5 4-3.5 4 4" stroke="#17302b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <span style="font-size:14.5px;font-weight:700;color:#17302b;">{{ t.uploadGallery }}</span>
+            </div>
+            <div onClick="{{ closeCaptureChoice }}" style="margin-top:8px;text-align:center;padding:12px;font-size:13.5px;font-weight:600;color:rgba(23,48,43,0.5);cursor:pointer;">{{ t.cancel }}</div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- step 2: AI tags -->
+  <sc-if value="{{ isReportStep2 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:8px 20px 20px;overflow:auto;">
+      <div style="font-size:20px;font-weight:800;color:#17302b;margin-bottom:4px;">{{ t.confirmDetails }}</div>
+      <div style="display:flex;gap:12px;margin:12px 0 18px;">
+        <div style="width:64px;height:64px;border-radius:14px;flex-shrink:0;background-size:cover;background-position:center;background-image:{{ report.thumbBg }};"></div>
+        <sc-if value="{{ report.analyzing }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:8px;color:rgba(23,48,43,0.6);font-size:13px;font-weight:600;">
+            <div style="width:16px;height:16px;border-radius:50%;border:2px solid rgba(23,48,43,0.2);border-top-color:#1f5d50;animation:ppSpin 0.7s linear infinite;"></div>
+            Analyzing photo…
+          </div>
+        </sc-if>
+        <sc-if value="{{ report.analyzed }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:13px;color:rgba(23,48,43,0.6);align-self:center;">AI detected the tags below — edit anything that's off.</div>
+        </sc-if>
+      </div>
+      <sc-if value="{{ report.analyzed }}" hint-placeholder-val="{{ false }}">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Species</div>
+          <div style="display:flex;gap:8px;margin-bottom:18px;">
+            <sc-for list="{{ speciesOptions }}" as="opt" hint-placeholder-count="3">
+              <div onClick="{{ opt.select }}" style="flex:1;padding:10px 0;text-align:center;border-radius:12px;background:{{ opt.bg }};color:{{ opt.color }};font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid {{ opt.border }};">{{ opt.label }}</div>
+            </sc-for>
+          </div>
+          <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;">Breed guess (AI)</div>
+          <div style="font-size:14px;color:#17302b;font-weight:600;margin-bottom:18px;">{{ report.breedGuess }}</div>
+          <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Condition tags</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <sc-for list="{{ tagOptions }}" as="tag" hint-placeholder-count="6">
+              <div onClick="{{ tag.toggle }}" style="padding:8px 13px;border-radius:14px;background:{{ tag.bg }};color:{{ tag.color }};font-size:12.5px;font-weight:600;cursor:pointer;border:1.5px solid {{ tag.border }};">{{ tag.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+    <div style="padding:12px 20px 8px;">
+      <div onClick="{{ reportNext }}" style="height:52px;border-radius:26px;background:{{ reportStep2ButtonBg }};color:#fbf6ea;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;">{{ t.confirmContinue }}</div>
+    </div>
+  </sc-if>
+
+  <!-- step 3: location -->
+  <sc-if value="{{ isReportStep3 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:8px 20px 20px;">
+      <div style="font-size:20px;font-weight:800;color:#17302b;margin-bottom:4px;">{{ t.confirmLocation }}</div>
+      <div style="font-size:13.5px;color:rgba(23,48,43,0.6);margin-bottom:10px;">{{ t.locationSub }}</div>
+      <div onClick="{{ moveLocationPin }}" style="flex:1;border-radius:20px;background:#dfe6d4;background-image:linear-gradient(rgba(23,48,43,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(23,48,43,0.06) 1px, transparent 1px);background-size:24px 24px;position:relative;cursor:crosshair;overflow:hidden;">
+        <div onMouseDown="{{ startPinDrag }}" style="position:absolute;left:{{ locationX }}%;top:{{ locationY }}%;width:30px;height:30px;border-radius:50% 50% 50% 0;background:#de5b3e;transform:translate(-50%,-100%) rotate(-45deg);box-shadow:0 4px 10px rgba(0,0,0,0.25);cursor:grab;touch-action:none;"></div>
+      </div>
+      <div style="font-size:11.5px;color:rgba(23,48,43,0.45);margin-top:8px;text-align:center;">Drag the pin, or tap the map, to adjust</div>
+      <div style="display:flex;align-items:center;gap:8px;margin:16px 0;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11z" stroke="#1f5d50" stroke-width="1.8"/></svg>
+        <div style="font-size:13.5px;color:#17302b;">{{ resolvedAddress }}</div>
+      </div>
+      <div onClick="{{ reportNext }}" style="height:52px;border-radius:26px;background:#1f5d50;color:#fbf6ea;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;">{{ t.looksRight }}</div>
+    </div>
+  </sc-if>
+
+  <!-- step 4: urgency + notes -->
+  <sc-if value="{{ isReportStep4 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;padding:8px 20px 20px;overflow:auto;">
+      <div style="font-size:20px;font-weight:800;color:#17302b;margin-bottom:4px;">{{ t.howUrgent }}</div>
+      <div style="font-size:13.5px;color:rgba(23,48,43,0.6);margin-bottom:16px;">{{ t.urgentSub }}</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+        <sc-for list="{{ urgencyOptions }}" as="opt" hint-placeholder-count="3">
+          <div onClick="{{ opt.select }}" style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:16px;background:{{ opt.bg }};border:2px solid {{ opt.border }};cursor:pointer;">
+            <span style="width:12px;height:12px;border-radius:50%;background:{{ opt.dot }};flex-shrink:0;"></span>
+            <div style="flex:1;">
+              <div style="font-size:14.5px;font-weight:700;color:#17302b;">{{ opt.label }}</div>
+              <div style="font-size:12px;color:rgba(23,48,43,0.55);">{{ opt.desc }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">{{ t.addNote }}</div>
+      <textarea value="{{ report.note }}" onChange="{{ setNote }}" placeholder="{{ t.notePlaceholder }}" style="min-height:72px;border-radius:14px;border:1.5px solid rgba(23,48,43,0.15);padding:12px;font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;background:#fff;color:#17302b;resize:none;margin-bottom:10px;"></textarea>
+      <div style="display:flex;align-items:center;gap:8px;color:#1f5d50;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="9" y="3" width="6" height="11" rx="3" stroke="#1f5d50" stroke-width="1.8"/><path d="M5 11a7 7 0 0014 0M12 18v3" stroke="#1f5d50" stroke-width="1.8" stroke-linecap="round"/></svg>
+        {{ t.voiceNote }}
+      </div>
+    </div>
+    <div style="padding:12px 20px 8px;">
+      <div onClick="{{ submitReport }}" style="height:52px;border-radius:26px;background:{{ submitButtonBg }};color:#fbf6ea;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;">{{ t.submitReport }}</div>
+    </div>
+  </sc-if>
+
+  <!-- step 5: success -->
+  <sc-if value="{{ isReportStep5 }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 32px;text-align:center;">
+      <div style="width:76px;height:76px;border-radius:50%;background:#e7f2ec;display:flex;align-items:center;justify-content:center;margin-bottom:22px;">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#4e9c6d" stroke-width="1.8"/><path d="M8 12l3 3 5-6" stroke="#4e9c6d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div style="font-size:21px;font-weight:800;color:#17302b;margin-bottom:8px;">{{ t.caseReportedPrefix }} {{ newCaseId }} {{ t.caseReportedSuffix }}</div>
+      <div style="font-size:14px;color:rgba(23,48,43,0.6);line-height:1.55;margin-bottom:28px;">{{ t.caseReportedBody }}</div>
+      <div onClick="{{ viewNewCase }}" style="width:100%;height:52px;border-radius:26px;background:#1f5d50;color:#fbf6ea;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">{{ t.viewCase }}</div>
+      <div onClick="{{ backToHomeFromReport }}" style="width:100%;height:52px;border-radius:26px;background:transparent;color:#1f5d50;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer;">{{ t.backToMap }}</div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- CASE DETAIL -->
+<sc-if value="{{ isCaseDetail }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;overflow:auto;">
+  <div style="height:190px;flex-shrink:0;position:relative;background:repeating-linear-gradient(135deg,rgba(23,48,43,0.14) 0 12px, rgba(23,48,43,0.06) 12px 24px);">
+    <div style="position:absolute;top:0;left:0;right:0;padding:56px 16px 0;display:flex;justify-content:space-between;">
+      <div onClick="{{ closeCaseDetail }}" style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#17302b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <sc-if value="{{ activeCase.viewNgo }}" hint-placeholder-val="{{ false }}"><span style="align-self:center;font-size:11px;font-weight:700;color:rgba(23,48,43,0.5);background:rgba(255,255,255,0.7);padding:6px 10px;border-radius:8px;">NGO view</span></sc-if>
+      <div style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.4-9.6-9C.5 8.7 2 5 5.5 5c2 0 3.3 1.2 4 2.2C10.2 6.2 11.5 5 13.5 5 17 5 18.5 8.7 16.6 12 14 16.6 12 21 12 21z" stroke="#17302b" stroke-width="1.6"/></svg></div>
+    </div>
+    <div style="position:absolute;bottom:14px;left:16px;font-family:ui-monospace,monospace;font-size:11px;color:rgba(23,48,43,0.55);background:rgba(255,255,255,0.7);padding:3px 8px;border-radius:6px;">photo: {{ activeCase.species }}</div>
+  </div>
+  <div style="padding:18px 20px 0;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <span style="padding:4px 10px;border-radius:10px;background:{{ activeCase.urgencyBg }};color:{{ activeCase.urgencyColor }};font-size:11.5px;font-weight:700;">{{ activeCase.urgencyLabel }}</span>
+      <span style="font-size:12px;color:rgba(23,48,43,0.5);">{{ activeCase.id }} · {{ activeCase.time }}</span>
+    </div>
+    <div style="font-size:21px;font-weight:800;color:#17302b;margin-bottom:2px;">{{ activeCase.species }}</div>
+    <div style="font-size:13px;color:rgba(23,48,43,0.6);margin-bottom:14px;">{{ activeCase.breed }} · reported by {{ activeCase.reporter }} · {{ activeCase.distance }}</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+      <sc-for list="{{ activeCase.tags }}" as="tag" hint-placeholder-count="2">
+        <span style="padding:5px 11px;border-radius:12px;background:rgba(23,48,43,0.06);color:#17302b;font-size:12px;font-weight:600;">{{ tag }}</span>
+      </sc-for>
+    </div>
+    <div style="border-radius:16px;background:#dfe6d4;height:90px;margin-bottom:18px;position:relative;">
+      <div style="position:absolute;left:50%;top:50%;width:20px;height:20px;border-radius:50% 50% 50% 0;background:#de5b3e;transform:translate(-50%,-100%) rotate(-45deg);"></div>
+    </div>
+    <sc-if value="{{ activeCase.note }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size:13.5px;color:#17302b;line-height:1.55;background:#fff;border:1px solid rgba(23,48,43,0.08);border-radius:14px;padding:12px 14px;margin-bottom:20px;">"{{ activeCase.note }}"</div>
+    </sc-if>
+    <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:12px;">Status</div>
+    <div style="display:flex;flex-direction:column;gap:0;margin-bottom:22px;">
+      <sc-for list="{{ activeCase.timeline }}" as="step" hint-placeholder-count="4">
+        <div style="display:flex;gap:12px;">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="width:20px;height:20px;border-radius:50%;background:{{ step.dotBg }};border:2px solid {{ step.dotBorder }};display:flex;align-items:center;justify-content:center;">
+              <sc-if value="{{ step.done }}" hint-placeholder-val="{{ false }}"><svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5 9-11" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></sc-if>
+            </div>
+            <sc-if value="{{ step.hasLine }}" hint-placeholder-val="{{ true }}"><div style="width:2px;flex:1;min-height:22px;background:{{ step.lineColor }};"></div></sc-if>
+          </div>
+          <div style="padding-bottom:20px;">
+            <div style="font-size:13.5px;font-weight:700;color:{{ step.textColor }};">{{ step.label }}</div>
+            <sc-if value="{{ step.sub }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:rgba(23,48,43,0.5);margin-top:2px;">{{ step.sub }}</div></sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <sc-if value="{{ activeCase.viewNgo }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:0 20px 24px;">
+      <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Assigned volunteer</div>
+      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid rgba(23,48,43,0.08);border-radius:14px;padding:12px 14px;margin-bottom:20px;">
+        <div style="width:30px;height:30px;border-radius:50%;background:{{ activeCase.assignBadgeBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">{{ activeCase.assignInitial }}</div>
+        <div style="flex:1;font-size:13.5px;font-weight:700;color:#17302b;">{{ activeCase.assignedLabel }}</div>
+        <div onClick="{{ reassignActiveCase }}" style="padding:8px 12px;border-radius:10px;background:rgba(23,48,43,0.06);font-size:12px;font-weight:700;color:#17302b;cursor:pointer;">Reassign</div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">Internal notes</div>
+      <textarea value="{{ ngoNoteDraft }}" onChange="{{ setNgoNote }}" placeholder="Visible to your team only…" style="width:100%;box-sizing:border-box;min-height:64px;border-radius:14px;border:1.5px solid rgba(23,48,43,0.15);padding:12px;font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;background:#fff;color:#17302b;resize:none;margin-bottom:16px;"></textarea>
+      <sc-if value="{{ activeCase.resolved }}" hint-placeholder-val="{{ false }}">
+        <div style="height:52px;border-radius:26px;background:rgba(23,48,43,0.06);color:rgba(23,48,43,0.5);display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700;">{{ t.caseResolvedLabel }}</div>
+      </sc-if>
+      <sc-if value="{{ activeCase.canVerify }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ verifyActiveCase }}" style="height:52px;border-radius:26px;background:#1f5d50;color:#fbf6ea;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer;">Verify resolution</div>
+      </sc-if>
+    </div>
+  </sc-if>
+  <sc-if value="{{ activeCase.viewReadonly }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:8px 20px 24px;display:flex;gap:10px;">
+      <div style="flex:1;height:52px;border-radius:26px;background:rgba(23,48,43,0.06);color:#17302b;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700;">{{ activeCase.readonlyLabel }}</div>
+      <sc-if value="{{ activeCase.claimedByMe }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ openChat }}" style="width:52px;height:52px;border-radius:16px;background:#fff;border:1.5px solid rgba(23,48,43,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H8l-4 4z" stroke="#17302b" stroke-width="1.7"/></svg></div>
+      </sc-if>
+    </div>
+  </sc-if>
+  <sc-if value="{{ activeCase.viewDefault }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:8px 20px 24px;display:flex;gap:10px;">
+      <sc-if value="{{ activeCase.canClaim }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ claimActiveCase }}" style-hover="{ transform: 'translateY(-2px)' }" style-active="{ transform: 'scale(0.97)' }" style="flex:1;height:52px;border-radius:26px;background:#1f5d50;color:#fbf6ea;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer;transition:transform .15s ease;">{{ t.illHelp }}</div>
+      </sc-if>
+      <sc-if value="{{ activeCase.claimedByMe }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;height:52px;border-radius:26px;background:#e7f2ec;color:#2e6b4c;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700;">{{ t.onThisCase }}</div>
+        <div onClick="{{ openChat }}" style="width:52px;height:52px;border-radius:16px;background:#fff;border:1.5px solid rgba(23,48,43,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H8l-4 4z" stroke="#17302b" stroke-width="1.7"/></svg></div>
+      </sc-if>
+      <sc-if value="{{ activeCase.canAdvance }}" hint-placeholder-val="{{ false }}">
+        <div onClick="{{ advanceActiveCase }}" style="flex:1;height:52px;border-radius:26px;background:#e3a13a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700;cursor:pointer;">{{ activeCase.advanceLabel }}</div>
+      </sc-if>
+      <sc-if value="{{ activeCase.resolved }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;height:52px;border-radius:26px;background:rgba(23,48,43,0.06);color:rgba(23,48,43,0.5);display:flex;align-items:center;justify-content:center;font-size:14.5px;font-weight:700;">{{ t.caseResolvedLabel }}</div>
+      </sc-if>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- MY CASES -->
+<sc-if value="{{ isMyCases }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;">
+  <div style="padding:58px 20px 14px;font-size:22px;font-weight:800;color:#17302b;">{{ myCasesTitle }}</div>
+  <div style="display:flex;gap:6px;padding:0 20px 12px;">
+    <sc-for list="{{ myTabs }}" as="tab" hint-placeholder-count="3">
+      <div onClick="{{ tab.select }}" style="flex:1;text-align:center;padding:9px 0;border-radius:12px;background:{{ tab.bg }};color:{{ tab.color }};font-size:13px;font-weight:700;cursor:pointer;">{{ tab.label }}</div>
+    </sc-for>
+  </div>
+  <div style="flex:1;overflow:auto;padding:4px 20px 20px;display:flex;flex-direction:column;gap:10px;">
+    <sc-for list="{{ myCasesList }}" as="c" hint-placeholder-count="3">
+      <div onClick="{{ c.open }}" style-hover="{ transform: 'translateY(-2px)', boxShadow: '0 8px 18px rgba(23,48,43,0.08)' }" style="display:flex;gap:12px;background:#fff;border-radius:16px;padding:12px;border:1px solid rgba(23,48,43,0.06);cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;">
+        <div style="width:56px;height:56px;border-radius:12px;flex-shrink:0;background:repeating-linear-gradient(135deg,rgba(23,48,43,0.10) 0 6px, rgba(23,48,43,0.04) 6px 12px);"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+            <span style="width:7px;height:7px;border-radius:50%;background:{{ c.urgencyColor }};"></span>
+            <span style="font-size:13.5px;font-weight:700;color:#17302b;">{{ c.species }}</span>
+            <span style="font-size:11px;color:rgba(23,48,43,0.45);margin-left:auto;">{{ c.time }}</span>
+          </div>
+          <div style="font-size:12px;color:rgba(23,48,43,0.55);margin-bottom:6px;">{{ c.id }} · {{ c.distance }}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="padding:3px 9px;border-radius:8px;background:{{ c.statusBg }};color:{{ c.statusColor }};font-size:11px;font-weight:700;">{{ c.statusLabel }}</span>
+            <span style="width:18px;height:18px;border-radius:50%;background:{{ c.badgeBg }};color:#fff;font-size:9.5px;font-weight:700;display:flex;align-items:center;justify-content:center;">{{ c.badgeInitial }}</span>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+    <sc-if value="{{ myCasesEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:40px 20px;color:rgba(23,48,43,0.45);font-size:13.5px;">{{ t.nothingHere }}</div>
+    </sc-if>
+  </div>
+  <div style="height:86px;flex-shrink:0;"></div>
+</div>
+</sc-if>
+
+<!-- SHELTERS LIST -->
+<sc-if value="{{ isShelters }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;">
+  <div style="padding:58px 20px 14px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-size:22px;font-weight:800;color:#17302b;">{{ t.sheltersVets }}</div>
+    <div style="display:flex;background:rgba(23,48,43,0.06);border-radius:12px;padding:3px;">
+      <div onClick="{{ setShelterView.list }}" style="padding:6px 12px;border-radius:9px;background:{{ shelterListBg }};font-size:12px;font-weight:700;color:#17302b;cursor:pointer;">{{ t.listView }}</div>
+      <div onClick="{{ setShelterView.map }}" style="padding:6px 12px;border-radius:9px;background:{{ shelterMapBg }};font-size:12px;font-weight:700;color:#17302b;cursor:pointer;">{{ t.mapView }}</div>
+    </div>
+  </div>
+  <sc-if value="{{ shelterViewIsList }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;overflow:auto;padding:4px 20px 20px;display:flex;flex-direction:column;gap:12px;">
+      <sc-for list="{{ sheltersList }}" as="s" hint-placeholder-count="3">
+        <div onClick="{{ s.open }}" style-hover="{ transform: 'translateY(-2px)', boxShadow: '0 8px 18px rgba(23,48,43,0.08)' }" style="display:flex;gap:12px;background:#fff;border-radius:16px;padding:14px;border:1px solid rgba(23,48,43,0.06);cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;">
+          <div style="width:52px;height:52px;border-radius:50%;flex-shrink:0;background:#1f5d50;display:flex;align-items:center;justify-content:center;color:#fbf6ea;font-weight:700;font-size:16px;">{{ s.initial }}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14.5px;font-weight:700;color:#17302b;margin-bottom:2px;">{{ s.name }}</div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:rgba(23,48,43,0.6);margin-bottom:6px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#e3a13a"><path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.2-5.4 3.2 1.3-6L3.3 9.2l6.1-.6z"/></svg>
+              {{ s.rating }} ({{ s.reviews }}) · {{ s.distance }}
+            </div>
+            <div style="font-size:11.5px;font-weight:700;color:{{ s.openColor }};margin-bottom:6px;">{{ s.hours }}</div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap;">
+              <sc-for list="{{ s.services }}" as="svc" hint-placeholder-count="2">
+                <span style="padding:3px 8px;border-radius:8px;background:rgba(23,48,43,0.06);font-size:10.5px;font-weight:600;color:#17302b;">{{ svc }}</span>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </sc-if>
+  <sc-if value="{{ shelterViewIsMap }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;margin:4px 20px 20px;border-radius:20px;background:#dfe6d4;background-image:linear-gradient(rgba(23,48,43,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(23,48,43,0.06) 1px, transparent 1px);background-size:26px 26px;position:relative;">
+      <sc-for list="{{ shelterPins }}" as="p" hint-placeholder-count="3">
+        <div onClick="{{ p.open }}" style="position:absolute;left:{{ p.x }}%;top:{{ p.y }}%;width:30px;height:30px;border-radius:50% 50% 50% 0;background:#1f5d50;transform:translate(-50%,-100%) rotate(-45deg);border:2px solid #fff;cursor:pointer;"></div>
+      </sc-for>
+    </div>
+  </sc-if>
+  <div style="height:86px;flex-shrink:0;"></div>
+</div>
+</sc-if>
+
+<!-- SHELTER DETAIL -->
+<sc-if value="{{ isShelterDetail }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;overflow:auto;">
+  <div style="height:150px;flex-shrink:0;position:relative;background:repeating-linear-gradient(135deg,rgba(23,48,43,0.14) 0 12px, rgba(23,48,43,0.06) 12px 24px);">
+    <div onClick="{{ closeShelterDetail }}" style="position:absolute;top:56px;left:16px;width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#17302b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+  <div style="padding:18px 20px 20px;">
+    <div style="font-size:21px;font-weight:800;color:#17302b;margin-bottom:4px;">{{ activeShelter.name }}</div>
+    <div style="display:flex;align-items:center;gap:5px;font-size:13px;color:rgba(23,48,43,0.6);margin-bottom:4px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="#e3a13a"><path d="M12 3l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.2-5.4 3.2 1.3-6L3.3 9.2l6.1-.6z"/></svg>
+      {{ activeShelter.rating }} ({{ activeShelter.reviews }} reviews) · {{ activeShelter.distance }}
+    </div>
+    <div style="font-size:13px;font-weight:700;color:{{ activeShelter.openColor }};margin-bottom:16px;">{{ activeShelter.hours }}</div>
+    <div style="display:flex;gap:10px;margin-bottom:20px;">
+      <div style="flex:1;height:48px;border-radius:14px;background:#1f5d50;color:#fbf6ea;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13.5px;font-weight:700;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6 3h4l1 5-2.5 1.5a11 11 0 005.5 5.5L15.5 13l5 1v4a2 2 0 01-2 2C10 20 3 13 3 5a2 2 0 012-2z" stroke="#fbf6ea" stroke-width="1.6"/></svg>{{ t.call }}</div>
+      <div style="flex:1;height:48px;border-radius:14px;background:#fff;border:1.5px solid rgba(23,48,43,0.12);color:#17302b;display:flex;align-items:center;justify-content:center;gap:7px;font-size:13.5px;font-weight:700;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 20l8-5 8 5z" stroke="#17302b" stroke-width="1.6"/></svg>{{ t.directions }}</div>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">{{ t.services }}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;">
+      <sc-for list="{{ activeShelter.services }}" as="svc" hint-placeholder-count="3">
+        <span style="padding:6px 12px;border-radius:10px;background:#fff;border:1px solid rgba(23,48,43,0.1);font-size:12px;font-weight:600;color:#17302b;">{{ svc }}</span>
+      </sc-for>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">{{ t.address }}</div>
+    <div style="font-size:13.5px;color:#17302b;">{{ activeShelter.address }}</div>
+  </div>
+</div>
+</sc-if>
+
+<!-- PROFILE -->
+<sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;overflow:auto;">
+  <div style="padding:58px 20px 8px;display:flex;flex-direction:column;align-items:center;">
+    <div style="width:72px;height:72px;border-radius:50%;background:#1f5d50;display:flex;align-items:center;justify-content:center;color:#fbf6ea;font-size:26px;font-weight:800;margin-bottom:12px;">{{ profileInitial }}</div>
+    <div style="font-size:18px;font-weight:800;color:#17302b;text-align:center;">{{ profileName }}</div>
+    <div style="padding:4px 12px;border-radius:10px;background:rgba(31,93,80,0.1);color:#1f5d50;font-size:12px;font-weight:700;margin-top:8px;white-space:nowrap;">{{ roleLabel }}</div>
+  </div>
+  <div style="display:flex;gap:10px;padding:18px 20px;">
+    <sc-for list="{{ impactStats }}" as="st" hint-placeholder-count="3">
+      <div style="flex:1;background:#fff;border-radius:16px;padding:14px 8px;text-align:center;border:1px solid rgba(23,48,43,0.06);">
+        <div style="font-size:22px;font-weight:800;color:#17302b;">{{ st.value }}</div>
+        <div style="font-size:11px;color:rgba(23,48,43,0.55);margin-top:2px;line-height:1.3;">{{ st.label }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:0 20px 8px;font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;">Badges</div>
+  <div style="display:flex;gap:14px;padding:8px 20px 20px;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:64px;">
+      <div style="width:52px;height:52px;border-radius:50%;background:#1f5d50;display:flex;align-items:center;justify-content:center;color:#fff;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.4-9.6-9C.5 8.7 2 5 5.5 5c2 0 3.3 1.2 4 2.2C10.2 6.2 11.5 5 13.5 5 17 5 18.5 8.7 16.6 12 14 16.6 12 21 12 21z" stroke="#fff" stroke-width="1.7"/></svg></div>
+      <div style="font-size:10.5px;font-weight:600;color:#17302b;text-align:center;line-height:1.2;">First Responder</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:64px;">
+      <div style="width:52px;height:52px;border-radius:50%;background:#c9860f;display:flex;align-items:center;justify-content:center;color:#fff;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="1.7"/><path d="M8 12l3 3 5-6" stroke="#fff" stroke-width="2"/></svg></div>
+      <div style="font-size:10.5px;font-weight:600;color:#17302b;text-align:center;line-height:1.2;">10 Rescues</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:64px;">
+      <div style="width:52px;height:52px;border-radius:50%;background:#3a6ea5;display:flex;align-items:center;justify-content:center;color:#fff;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8 8 0 119.5 4 6.5 6.5 0 0020 14.5z" stroke="#fff" stroke-width="1.7"/></svg></div>
+      <div style="font-size:10.5px;font-weight:600;color:#17302b;text-align:center;line-height:1.2;">Night Owl</div>
+    </div>
+  </div>
+  <div style="margin:0 20px;background:#fff;border-radius:18px;border:1px solid rgba(23,48,43,0.06);overflow:hidden;">
+    <div onClick="{{ openEditProfile }}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(23,48,43,0.06);cursor:pointer;">
+      <div style="width:28px;height:28px;border-radius:9px;background:rgba(23,48,43,0.06);display:flex;align-items:center;justify-content:center;color:#17302b;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#17302b" stroke-width="1.7"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke="#17302b" stroke-width="1.7"/></svg></div>
+      <div style="flex:1;font-size:14px;color:#17302b;font-weight:600;">{{ t.editProfile }}</div>
+      <svg width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="rgba(23,48,43,0.3)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div onClick="{{ toggleNotifPrefs }}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(23,48,43,0.06);cursor:pointer;">
+      <div style="width:28px;height:28px;border-radius:9px;background:rgba(23,48,43,0.06);display:flex;align-items:center;justify-content:center;color:#17302b;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 10a6 6 0 1112 0c0 3 1 5 2 6H4c1-1 2-3 2-6z" stroke="#17302b" stroke-width="1.7"/></svg></div>
+      <div style="flex:1;font-size:14px;color:#17302b;font-weight:600;">{{ t.notifPrefs }}</div>
+      <span style="font-size:12px;color:rgba(23,48,43,0.5);margin-right:4px;">{{ notifPrefsLabel }}</span>
+      <svg width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="rgba(23,48,43,0.3)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(23,48,43,0.06);">
+      <div style="width:28px;height:28px;border-radius:9px;background:rgba(23,48,43,0.06);display:flex;align-items:center;justify-content:center;color:#17302b;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#17302b" stroke-width="1.6"/><path d="M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18" stroke="#17302b" stroke-width="1.4"/></svg></div>
+      <div style="flex:1;font-size:14px;color:#17302b;font-weight:600;">{{ t.language }}</div>
+      <select value="{{ languageCode }}" onChange="{{ setLanguage }}" style="border:1.5px solid rgba(23,48,43,0.15);background:#fff;color:#17302b;font-size:12.5px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;border-radius:9px;padding:6px 10px;cursor:pointer;">
+        <option value="en">English</option>
+        <option value="ml">മലയാളം</option>
+        <option value="hi">हिन्दी</option>
+      </select>
+    </div>
+    <div onClick="{{ inviteFriends }}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid rgba(23,48,43,0.06);cursor:pointer;">
+      <div style="width:28px;height:28px;border-radius:9px;background:rgba(23,48,43,0.06);display:flex;align-items:center;justify-content:center;color:#17302b;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M8 12a4 4 0 100-8 4 4 0 000 8zM2 21c0-3.5 2.7-6 6-6s6 2.5 6 6M17 8v6M14 11h6" stroke="#17302b" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+      <div style="flex:1;font-size:14px;color:#17302b;font-weight:600;">{{ t.inviteFriends }}</div>
+      <svg width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="rgba(23,48,43,0.3)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div onClick="{{ logOut }}" style="display:flex;align-items:center;gap:12px;padding:14px 16px;cursor:pointer;">
+      <div style="width:28px;height:28px;border-radius:9px;background:rgba(23,48,43,0.06);display:flex;align-items:center;justify-content:center;color:#17302b;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="#17302b" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+      <div style="flex:1;font-size:14px;color:#17302b;font-weight:600;">{{ t.logOut }}</div>
+      <svg width="8" height="14" viewBox="0 0 8 14"><path d="M1 1l6 6-6 6" stroke="rgba(23,48,43,0.3)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE MODAL -->
+  <sc-if value="{{ editProfileOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:rgba(23,48,43,0.45);display:flex;align-items:flex-end;z-index:40;">
+      <div style="width:100%;background:#fbf6ea;border-radius:24px 24px 0 0;padding:20px 20px 28px;">
+        <div style="font-size:17px;font-weight:800;color:#17302b;margin-bottom:16px;">{{ t.editProfile }}</div>
+        <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">{{ t.name }}</div>
+        <input value="{{ editNameDraft }}" onChange="{{ setProfileName }}" style="width:100%;height:44px;border-radius:12px;border:1.5px solid rgba(23,48,43,0.15);padding:0 14px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;background:#fff;color:#17302b;box-sizing:border-box;margin-bottom:16px;" />
+        <div style="display:flex;gap:10px;">
+          <div onClick="{{ closeEditProfile }}" style="flex:1;height:48px;border-radius:24px;background:rgba(23,48,43,0.06);color:#17302b;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;cursor:pointer;">{{ t.cancel }}</div>
+          <div onClick="{{ saveProfile }}" style="flex:1;height:48px;border-radius:24px;background:#1f5d50;color:#fbf6ea;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;cursor:pointer;">{{ t.save }}</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <div style="height:106px;flex-shrink:0;"></div>
+</div>
+</sc-if>
+
+<!-- NOTIFICATIONS -->
+<sc-if value="{{ isNotifications }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;">
+  <div style="padding:58px 20px 14px;display:flex;align-items:center;gap:12px;">
+    <div onClick="{{ goHome }}" style="width:34px;height:34px;border-radius:12px;background:#fff;border:1px solid rgba(23,48,43,0.08);display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#17302b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div style="font-size:20px;font-weight:800;color:#17302b;">{{ t.notifications }}</div>
+  </div>
+  <div style="flex:1;overflow:auto;padding:4px 20px 20px;display:flex;flex-direction:column;gap:8px;">
+    <sc-for list="{{ notifList }}" as="n" hint-placeholder-count="5">
+      <div style="display:flex;gap:10px;background:{{ n.bg }};border-radius:14px;padding:12px;border:1px solid rgba(23,48,43,0.06);">
+        <div style="width:34px;height:34px;border-radius:10px;background:{{ n.iconBg }};display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;">
+          <sc-if value="{{ n.isNew }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 10a6 6 0 1112 0c0 3 1 5 2 6H4c1-1 2-3 2-6z" stroke="#fff" stroke-width="1.7"/></svg></sc-if>
+          <sc-if value="{{ n.isClaim }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.4-9.6-9C.5 8.7 2 5 5.5 5c2 0 3.3 1.2 4 2.2C10.2 6.2 11.5 5 13.5 5 17 5 18.5 8.7 16.6 12 14 16.6 12 21 12 21z" stroke="#fff" stroke-width="1.7"/></svg></sc-if>
+          <sc-if value="{{ n.isChat }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H8l-4 4z" stroke="#fff" stroke-width="1.7"/></svg></sc-if>
+          <sc-if value="{{ n.isStatus }}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="1.7"/><path d="M8 12l3 3 5-6" stroke="#fff" stroke-width="2"/></svg></sc-if>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:13px;color:#17302b;line-height:1.4;">{{ n.text }}</div>
+          <div style="font-size:11px;color:rgba(23,48,43,0.45);margin-top:4px;">{{ n.time }}</div>
+        </div>
+        <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}"><span style="width:7px;height:7px;border-radius:50%;background:#de5b3e;flex-shrink:0;margin-top:4px;"></span></sc-if>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- ADOPT GRID -->
+<sc-if value="{{ isAdopt }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;">
+  <div style="padding:58px 20px 4px;">
+    <div style="font-size:22px;font-weight:800;color:#17302b;">{{ t.readyAdoption }}</div>
+    <div style="font-size:13px;color:rgba(23,48,43,0.6);margin-top:2px;">{{ t.readyAdoptionSub }}</div>
+  </div>
+  <div style="flex:1;overflow:auto;padding:14px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <sc-for list="{{ adoptList }}" as="a" hint-placeholder-count="4">
+      <div onClick="{{ a.open }}" style-hover="{ transform: 'translateY(-3px) scale(1.02)', boxShadow: '0 10px 20px rgba(23,48,43,0.10)' }" style="background:#fff;border-radius:16px;overflow:hidden;border:1px solid rgba(23,48,43,0.06);cursor:pointer;transition:transform .18s ease, box-shadow .18s ease;">
+        <div style="height:96px;background:repeating-linear-gradient(135deg,rgba(23,48,43,0.10) 0 6px, rgba(23,48,43,0.04) 6px 12px);"></div>
+        <div style="padding:10px;">
+          <div style="font-size:14px;font-weight:700;color:#17302b;">{{ a.name }}</div>
+          <div style="font-size:11.5px;color:rgba(23,48,43,0.55);margin-top:2px;">{{ a.breed }} · {{ a.age }}</div>
+          <div style="font-size:11px;color:rgba(23,48,43,0.45);margin-top:4px;">{{ a.distance }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="height:86px;flex-shrink:0;"></div>
+</div>
+</sc-if>
+
+<!-- ADOPT DETAIL -->
+<sc-if value="{{ isAdoptDetail }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;overflow:auto;">
+  <div style="height:220px;flex-shrink:0;position:relative;background:repeating-linear-gradient(135deg,rgba(23,48,43,0.14) 0 12px, rgba(23,48,43,0.06) 12px 24px);">
+    <div onClick="{{ closeAdoptDetail }}" style="position:absolute;top:56px;left:16px;width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#17302b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  </div>
+  <div style="padding:18px 20px 20px;">
+    <div style="font-size:22px;font-weight:800;color:#17302b;margin-bottom:8px;">{{ activeAdopt.name }}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;">
+      <span style="padding:5px 11px;border-radius:10px;background:rgba(23,48,43,0.06);font-size:12px;font-weight:600;color:#17302b;">{{ activeAdopt.age }}</span>
+      <span style="padding:5px 11px;border-radius:10px;background:rgba(23,48,43,0.06);font-size:12px;font-weight:600;color:#17302b;">{{ activeAdopt.gender }}</span>
+      <span style="padding:5px 11px;border-radius:10px;background:rgba(23,48,43,0.06);font-size:12px;font-weight:600;color:#17302b;">{{ activeAdopt.breed }}</span>
+      <sc-if value="{{ activeAdopt.vaccinated }}" hint-placeholder-val="{{ true }}"><span style="padding:5px 11px;border-radius:10px;background:#e7f2ec;font-size:12px;font-weight:600;color:#2e6b4c;">Vaccinated</span></sc-if>
+      <sc-if value="{{ activeAdopt.sterilized }}" hint-placeholder-val="{{ true }}"><span style="padding:5px 11px;border-radius:10px;background:#e7f2ec;font-size:12px;font-weight:600;color:#2e6b4c;">Sterilized</span></sc-if>
+    </div>
+    <div style="font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;">{{ t.story }}</div>
+    <div style="font-size:13.5px;color:#17302b;line-height:1.6;margin-bottom:22px;">{{ activeAdopt.story }}</div>
+    <div onClick="{{ expressInterest }}" style="height:52px;border-radius:26px;background:#1f5d50;color:#fbf6ea;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;cursor:pointer;">{{ t.contactShelter }}</div>
+  </div>
+</div>
+</sc-if>
+
+<!-- CHAT -->
+<sc-if value="{{ isChat }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#f2ede0;box-sizing:border-box;">
+  <div style="padding:58px 16px 12px;display:flex;align-items:center;gap:10px;background:#fbf6ea;border-bottom:1px solid rgba(23,48,43,0.08);">
+    <div onClick="{{ closeChat }}" style="width:34px;height:34px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="#17302b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div style="width:36px;height:36px;border-radius:50%;background:#1f5d50;display:flex;align-items:center;justify-content:center;color:#fbf6ea;font-weight:700;font-size:13px;flex-shrink:0;">K</div>
+    <div>
+      <div style="font-size:14px;font-weight:700;color:#17302b;">Kavya R.</div>
+      <div style="font-size:11px;color:rgba(23,48,43,0.5);">Volunteer · re: {{ activeCase.id }}</div>
+    </div>
+  </div>
+  <div style="flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px;">
+    <sc-for list="{{ chatMessages }}" as="m" hint-placeholder-count="3">
+      <div style="display:flex;justify-content:{{ m.align }};">
+        <div style="max-width:76%;background:{{ m.bg }};color:{{ m.color }};padding:10px 13px;border-radius:16px;font-size:13.5px;line-height:1.45;animation:ppPop .15s ease;">{{ m.text }}</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:10px 14px 18px;display:flex;gap:8px;background:#fbf6ea;border-top:1px solid rgba(23,48,43,0.08);">
+    <input value="{{ chatInput }}" onChange="{{ setChatInput }}" placeholder="Type a message…" style="flex:1;height:42px;border-radius:21px;border:1.5px solid rgba(23,48,43,0.12);padding:0 16px;font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;background:#fff;color:#17302b;outline:none;" />
+    <div onClick="{{ sendChat }}" style="width:42px;height:42px;border-radius:50%;background:#1f5d50;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13" stroke="#fbf6ea" stroke-width="1.8" stroke-linecap="round"/><path d="M22 2l-7 20-4-9-9-4z" stroke="#fbf6ea" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
+  </div>
+</div>
+</sc-if>
+
+<!-- NGO DASHBOARD -->
+<sc-if value="{{ isNgoDashboard }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;">
+  <div style="padding:58px 20px 4px;font-size:22px;font-weight:800;color:#17302b;">Dashboard</div>
+  <div style="padding:0 20px 4px;font-size:13px;color:rgba(23,48,43,0.55);">Kochi Animal Rescue Trust</div>
+  <div style="display:flex;gap:10px;padding:16px 20px 6px;">
+    <div style="flex:1;background:#fff;border-radius:16px;padding:14px 8px;text-align:center;border:1px solid rgba(23,48,43,0.06);">
+      <div style="font-size:22px;font-weight:800;color:#de5b3e;">{{ ngoStats.open }}</div>
+      <div style="font-size:11px;color:rgba(23,48,43,0.55);margin-top:2px;">Open cases</div>
+    </div>
+    <div style="flex:1;background:#fff;border-radius:16px;padding:14px 8px;text-align:center;border:1px solid rgba(23,48,43,0.06);">
+      <div style="font-size:22px;font-weight:800;color:#c9860f;">{{ ngoStats.claimed }}</div>
+      <div style="font-size:11px;color:rgba(23,48,43,0.55);margin-top:2px;">Claimed</div>
+    </div>
+    <div style="flex:1;background:#fff;border-radius:16px;padding:14px 8px;text-align:center;border:1px solid rgba(23,48,43,0.06);">
+      <div style="font-size:22px;font-weight:800;color:#3f8a5e;">{{ ngoStats.resolved }}</div>
+      <div style="font-size:11px;color:rgba(23,48,43,0.55);margin-top:2px;">Resolved</div>
+    </div>
+    <div style="flex:1;background:#fff;border-radius:16px;padding:14px 8px;text-align:center;border:1px solid rgba(23,48,43,0.06);">
+      <div style="font-size:22px;font-weight:800;color:#1f5d50;">8</div>
+      <div style="font-size:11px;color:rgba(23,48,43,0.55);margin-top:2px;">Volunteers online</div>
+    </div>
+  </div>
+  <div style="padding:18px 20px 8px;font-size:12px;font-weight:700;color:rgba(23,48,43,0.5);text-transform:uppercase;letter-spacing:.4px;">Most urgent</div>
+  <div style="flex:1;overflow:auto;padding:0 20px 20px;display:flex;flex-direction:column;gap:10px;">
+    <sc-for list="{{ ngoUrgentList }}" as="c" hint-placeholder-count="3">
+      <div onClick="{{ c.open }}" style-hover="{ transform: 'translateY(-2px)', boxShadow: '0 8px 18px rgba(23,48,43,0.08)' }" style="display:flex;gap:12px;background:#fff;border-radius:16px;padding:12px;border:1px solid rgba(23,48,43,0.06);cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;">
+        <div style="width:8px;border-radius:4px;background:{{ c.urgencyColor }};flex-shrink:0;"></div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13.5px;font-weight:700;color:#17302b;">{{ c.species }} · {{ c.urgencyLabel }}</div>
+          <div style="font-size:12px;color:rgba(23,48,43,0.55);margin-top:2px;">{{ c.id }} · {{ c.distance }} · {{ c.time }}</div>
+        </div>
+        <span style="padding:3px 9px;border-radius:8px;background:{{ c.statusBg }};color:{{ c.statusColor }};font-size:11px;font-weight:700;align-self:center;">{{ c.statusLabel }}</span>
+      </div>
+    </sc-for>
+  </div>
+  <div style="height:86px;flex-shrink:0;"></div>
+</div>
+</sc-if>
+
+<!-- NGO QUEUE -->
+<sc-if value="{{ isNgoQueue }}" hint-placeholder-val="{{ false }}">
+<div style="height:100%;display:flex;flex-direction:column;background:#fbf6ea;box-sizing:border-box;">
+  <div style="padding:58px 20px 14px;font-size:22px;font-weight:800;color:#17302b;">Case queue</div>
+  <div style="flex:1;overflow:auto;padding:4px 20px 20px;display:flex;flex-direction:column;gap:10px;">
+    <sc-for list="{{ ngoQueueList }}" as="c" hint-placeholder-count="5">
+      <div onClick="{{ c.open }}" style-hover="{ transform: 'translateY(-2px)', boxShadow: '0 8px 18px rgba(23,48,43,0.08)' }" style="background:#fff;border-radius:16px;padding:12px 14px;border:1px solid rgba(23,48,43,0.06);cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="width:7px;height:7px;border-radius:50%;background:{{ c.urgencyColor }};"></span>
+          <span style="font-size:13.5px;font-weight:700;color:#17302b;">{{ c.species }}</span>
+          <span style="font-size:11px;color:rgba(23,48,43,0.45);">{{ c.id }}</span>
+          <span style="padding:3px 9px;border-radius:8px;background:{{ c.statusBg }};color:{{ c.statusColor }};font-size:10.5px;font-weight:700;margin-left:auto;">{{ c.statusLabel }}</span>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="font-size:12px;color:rgba(23,48,43,0.55);">Assigned: {{ c.assignedLabel }}</div>
+          <div onClick="{{ c.assign }}" style="padding:6px 12px;border-radius:9px;background:rgba(23,48,43,0.06);font-size:11.5px;font-weight:700;color:#17302b;cursor:pointer;">{{ c.actionLabel }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="height:86px;flex-shrink:0;"></div>
+</div>
+</sc-if>
+
+<!-- BOTTOM TAB BAR -->
+<sc-if value="{{ showReporterTabBar }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:0;right:0;bottom:0;background:rgba(251,246,234,0.96);backdrop-filter:blur(10px);border-top:1px solid rgba(23,48,43,0.08);display:flex;padding:10px 6px 26px;">
+    <div onClick="{{ goHome }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabHomeColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabHomePill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 001 1h4v-6h2v6h4a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">{{ t.navMap }}</span>
+    </div>
+    <div onClick="{{ goMyCases }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabCasesColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabCasesPill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="14" height="17" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M9 3h6v3H9z" stroke="currentColor" stroke-width="1.7"/><path d="M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">{{ t.navCases }}</span>
+    </div>
+    <div onClick="{{ goAdopt }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabAdoptColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabAdoptPill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.4-9.6-9C.5 8.7 2 5 5.5 5c2 0 3.3 1.2 4 2.2C10.2 6.2 11.5 5 13.5 5 17 5 18.5 8.7 16.6 12 14 16.6 12 21 12 21z" stroke="currentColor" stroke-width="1.7"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">{{ t.navAdopt }}</span>
+    </div>
+    <div onClick="{{ goShelters }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabSheltersColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabSheltersPill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="10" r="2.3" stroke="currentColor" stroke-width="1.7"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">{{ t.navShelters }}</span>
+    </div>
+    <div onClick="{{ goProfile }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabProfileColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabProfilePill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">{{ t.navProfile }}</span>
+    </div>
+  </div>
+</sc-if>
+
+<!-- VOLUNTEER TAB BAR -->
+<sc-if value="{{ showVolunteerTabBar }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:0;right:0;bottom:0;background:rgba(251,246,234,0.96);backdrop-filter:blur(10px);border-top:1px solid rgba(23,48,43,0.08);display:flex;padding:10px 6px 26px;">
+    <div onClick="{{ goMyCases }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabCasesColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabCasesPill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="14" height="17" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M9 3h6v3H9z" stroke="currentColor" stroke-width="1.7"/><path d="M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">Queue</span>
+    </div>
+    <div onClick="{{ goHome }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabHomeColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabHomePill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 001 1h4v-6h2v6h4a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">{{ t.navMap }}</span>
+    </div>
+    <div onClick="{{ goShelters }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabSheltersColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabSheltersPill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="10" r="2.3" stroke="currentColor" stroke-width="1.7"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">{{ t.navShelters }}</span>
+    </div>
+    <div onClick="{{ goProfile }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabProfileColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabProfilePill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">{{ t.navProfile }}</span>
+    </div>
+  </div>
+</sc-if>
+
+<!-- NGO TAB BAR -->
+<sc-if value="{{ showNgoTabBar }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:0;right:0;bottom:0;background:rgba(251,246,234,0.96);backdrop-filter:blur(10px);border-top:1px solid rgba(23,48,43,0.08);display:flex;padding:10px 6px 26px;">
+    <div onClick="{{ goNgoDashboard }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabDashboardColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabDashboardPill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="13" width="5" height="7" stroke="currentColor" stroke-width="1.7"/><rect x="9.5" y="8" width="5" height="12" stroke="currentColor" stroke-width="1.7"/><rect x="16" y="4" width="5" height="16" stroke="currentColor" stroke-width="1.7"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">Dashboard</span>
+    </div>
+    <div onClick="{{ goNgoQueue }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabQueueColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabQueuePill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="14" height="17" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M9 3h6v3H9z" stroke="currentColor" stroke-width="1.7"/><path d="M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">Queue</span>
+    </div>
+    <div onClick="{{ goShelters }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabSheltersColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabSheltersPill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="10" r="2.3" stroke="currentColor" stroke-width="1.7"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">{{ t.navShelters }}</span>
+    </div>
+    <div onClick="{{ goProfile }}" style-active="{ transform: 'scale(0.92)' }" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;color:{{ tabProfileColor }};transition:transform .12s ease;">
+      <div style="width:40px;height:26px;border-radius:13px;background:{{ tabProfilePill }};display:flex;align-items:center;justify-content:center;transition:background .2s ease;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+      <span style="font-size:10.5px;font-weight:700;">{{ t.navProfile }}</span>
+    </div>
+  </div>
+</sc-if>
+
+<!-- TOAST -->
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:50%;bottom:104px;transform:translateX(-50%);background:#17302b;color:#fbf6ea;padding:11px 18px;border-radius:14px;font-size:13px;font-weight:600;white-space:nowrap;box-shadow:0 8px 20px rgba(0,0,0,0.25);animation:ppFade .2s ease;">{{ toast }}</div>
+</sc-if>
+
+</div>
+</x-import>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const CASES = [
+  { id: 'C-1042', species: 'Dog', breed: 'Indie mix (AI guess)', tags: ['Limping', 'Visible wound'], urgency: 'critical', status: 'open', reporter: 'Meera K.', distance: '0.4 km', time: '12 min ago', note: 'Near the bus stand, favoring back leg badly.', x: 32, y: 42 },
+  { id: 'C-1041', species: 'Cat', breed: 'Domestic shorthair', tags: ['Malnourished'], urgency: 'attention', status: 'claimed', claimedBy: 'You', reporter: 'Arjun S.', distance: '0.8 km', time: '40 min ago', note: 'Kitten hiding under a parked car, looks very thin.', x: 58, y: 26 },
+  { id: 'C-1039', species: 'Cattle', breed: null, tags: ['Roadkill risk', 'Blocking traffic'], urgency: 'critical', status: 'open', reporter: 'Fahad R.', distance: '1.2 km', time: '1 hr ago', note: '', x: 71, y: 60 },
+  { id: 'C-1035', species: 'Dog', breed: 'Street dog', tags: ['Skin disease'], urgency: 'monitoring', status: 'resolved', reporter: 'You', distance: '2.1 km', time: 'Yesterday', note: '', x: 20, y: 70 },
+  { id: 'C-1033', species: 'Dog', breed: 'Street dog', tags: ['Hit by vehicle'], urgency: 'critical', status: 'resolved', reporter: 'Priya N.', distance: '1.5 km', time: '2 days ago', note: '', x: 45, y: 80 },
+];
+const SHELTERS = [
+  { id: 'S1', name: 'Kochi Animal Rescue Trust', rating: 4.6, reviews: 128, distance: '1.1 km', open: true, hours: 'Open · Closes 8 PM', services: ['Vaccination', 'Sterilization', 'Emergency'], address: 'Willington Island Rd, Kochi', x: 40, y: 45 },
+  { id: 'S2', name: 'Blue Cross Kochi', rating: 4.8, reviews: 203, distance: '2.4 km', open: true, hours: 'Open 24 hours', services: ['Emergency', 'Sterilization'], address: 'Kaloor, Kochi', x: 65, y: 30 },
+  { id: 'S3', name: 'Paws & Care Shelter', rating: 4.3, reviews: 64, distance: '3.6 km', open: false, hours: 'Opens 9 AM tomorrow', services: ['Vaccination', 'Adoption'], address: 'Edappally, Kochi', x: 25, y: 65 },
+];
+const ADOPTS = [
+  { id: 'A1', name: 'Simba', age: '~1.5 yrs', gender: 'Male', breed: 'Indie mix', vaccinated: true, sterilized: true, distance: '1.1 km', story: 'Rescued from a construction site with a leg injury, now fully healed and looking for a home.' },
+  { id: 'A2', name: 'Motta', age: '~3 yrs', gender: 'Female', breed: 'Domestic shorthair', vaccinated: true, sterilized: true, distance: '0.9 km', story: 'Calm, affectionate cat rescued after being abandoned near a market. Loves lap time.' },
+  { id: 'A3', name: 'Bruno', age: '~6 months', gender: 'Male', breed: 'Indie pup', vaccinated: true, sterilized: false, distance: '2.0 km', story: 'Playful pup found separated from his litter, ready for a loving family.' },
+  { id: 'A4', name: 'Dolly', age: '~2 yrs', gender: 'Female', breed: 'Indie mix', vaccinated: true, sterilized: true, distance: '1.6 km', story: 'Gentle and loyal, great with kids, fully vaccinated and sterilized.' },
+];
+const NOTIFS = [
+  { id: 'N1', type: 'new', text: 'New critical case reported 0.4 km away — injured dog near bus stand.', time: '12 min ago', unread: true },
+  { id: 'N2', type: 'claim', text: 'Arjun claimed your report C-1039 (cattle, roadkill risk).', time: '35 min ago', unread: true },
+  { id: 'N3', type: 'chat', text: 'Kavya sent a message about case C-1041.', time: '1 hr ago', unread: true },
+  { id: 'N4', type: 'status', text: 'Your reported case C-1035 was marked Resolved. Thank you!', time: 'Yesterday', unread: false },
+  { id: 'N5', type: 'new', text: '3 new cases reported in your neighborhood today.', time: 'Yesterday', unread: false },
+];
+const ONBOARD = [
+  { title: 'Every stray deserves\na chance', body: "Spot a dog, cat or cow in trouble on the street? Report it in under 30 seconds \u2014 no calls, no waiting on hold." },
+  { title: 'Nearest rescuer\ngets notified', body: 'Your report reaches volunteers, NGOs and shelters near the location instantly, so help is on the way fast.' },
+  { title: "Together, we map\nthe city's care", body: "Every case you report helps build a live picture of stray welfare across your city \u2014 so help goes where it's needed most." },
+];
+const TAG_POOL = ['Limping', 'Visible wound', 'Skin disease', 'Malnourished', 'Roadkill risk', 'Hit by vehicle', 'Scared/aggressive'];
+const NEARBY_ADDRESSES = [
+  { x: 50, y: 46, addr: 'Willington Island Rd, Kochi, Kerala 682003' },
+  { x: 15, y: 15, addr: 'Marine Drive, Kochi, Kerala 682031' },
+  { x: 85, y: 15, addr: 'Kaloor, Kochi, Kerala 682017' },
+  { x: 15, y: 85, addr: 'Fort Kochi, Kochi, Kerala 682001' },
+  { x: 85, y: 85, addr: 'Edappally, Kochi, Kerala 682024' },
+  { x: 50, y: 10, addr: 'MG Road, Kochi, Kerala 682035' },
+  { x: 10, y: 50, addr: 'Vyttila, Kochi, Kerala 682019' },
+  { x: 90, y: 50, addr: 'Palarivattom, Kochi, Kerala 682025' },
+];
+
+const STRINGS = {
+  en: {
+    navMap: 'Map', navCases: 'Cases', navAdopt: 'Adopt', navShelters: 'Shelters', navProfile: 'Profile',
+    skip: 'Skip', next: 'Next', getStarted: 'Get started',
+    howHelp: 'How will you help?', howHelpSub: "Pick a role to get started \u2014 you can always add more later.", continueBtn: 'Continue',
+    reporterLabel: 'Reporter', reporterDesc: 'Spot strays in distress and report cases as you go about your day.',
+    volunteerLabel: 'Volunteer / Rescuer', volunteerDesc: 'Get notified of nearby cases, claim them, and help coordinate rescue.',
+    ngoLabel: 'NGO / Shelter', ngoDesc: 'Manage your case queue, coordinate volunteers, and track outcomes.',
+    liveRescueMap: 'Live rescue map', location: 'Kochi, Kerala',
+    snapPhoto: 'Snap a photo', snapSub: "Our AI will identify the animal and its condition.", uploadGallery: 'Upload from gallery',
+    confirmDetails: 'Confirm details', confirmContinue: 'Confirm & continue',
+    confirmLocation: 'Confirm location', locationSub: "We auto-tagged this from your device. Adjust the pin if it's off.", looksRight: 'Looks right',
+    howUrgent: 'How urgent is it?', urgentSub: 'This helps rescuers decide who responds first.',
+    addNote: 'Add a note (optional)', notePlaceholder: 'Anything else responders should know\u2026', voiceNote: 'Record a voice note instead',
+    submitReport: 'Submit report', caseReportedPrefix: 'Case', caseReportedSuffix: 'reported',
+    caseReportedBody: "3 nearby volunteers and 1 shelter have been notified. You'll get updates as help is on the way.",
+    viewCase: 'View case', backToMap: 'Back to map',
+    illHelp: "I'll help", onThisCase: "You're on this case", markInProgress: 'Mark in progress', markResolved: 'Mark resolved', caseResolvedLabel: 'Case resolved',
+    myActivity: 'My activity', tabReported: 'Reported', tabClaimed: 'Claimed', tabResolved: 'Resolved', nothingHere: 'Nothing here yet.',
+    sheltersVets: 'Shelters & vets', listView: 'List', mapView: 'Map', services: 'Services', address: 'Address', call: 'Call', directions: 'Directions',
+    editProfile: 'Edit profile', notifPrefs: 'Notification preferences', language: 'Language', inviteFriends: 'Invite friends', logOut: 'Log out',
+    badges: 'Badges', statCases: 'Cases reported', statRescues: 'Rescues claimed', statResolved: 'Resolved total',
+    notifications: 'Notifications', readyAdoption: 'Ready for adoption', readyAdoptionSub: 'Rescued & rehabilitated, looking for a home.',
+    contactShelter: 'Contact shelter', story: 'Story', save: 'Save', cancel: 'Cancel', name: 'Name',
+  },
+  ml: {
+    navMap: '\u0d2e\u0d3e\u0d2a\u0d4d\u0d2a\u0d4d', navCases: '\u0d15\u0d47\u0d38\u0d41\u0d15\u0d33\u0d4d\u200d', navAdopt: '\u0d38\u0d4d\u0d35\u0d40\u0d15\u0d30\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d15', navShelters: '\u0d05\u0d2d\u0d2f\u0d15\u0d47\u0d28\u0d4d\u0d26\u0d4d\u0d30\u0d19\u0d4d\u0d19\u0d33\u0d4d\u200d', navProfile: '\u0d2a\u0d4d\u0d30\u0d4a\u0d2b\u0d48\u0d7d',
+    skip: '\u0d12\u0d34\u0d3f\u0d35\u0d3e\u0d15\u0d4d\u0d15\u0d41\u0d15', next: '\u0d05\u0d1f\u0d41\u0d24\u0d4d\u0d24\u0d24\u0d4d', getStarted: '\u0d24\u0d41\u0d1f\u0d19\u0d4d\u0d19\u0d3e\u0d02',
+    howHelp: '\u0d28\u0d3f\u0d19\u0d4d\u0d19\u0d33\u0d4d\u200d \u0d0e\u0d19\u0d4d\u0d19\u0d28\u0d46 \u0d38\u0d39\u0d3e\u0d2f\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d02?', howHelpSub: '\u0d12\u0d30\u0d41 \u0d31\u0d4b\u0d33\u0d4d\u200d \u0d24\u0d3f\u0d30\u0d1e\u0d4d\u0d1e\u0d46\u0d1f\u0d41\u0d15\u0d4d\u0d15\u0d41\u0d15 \u2014 \u0d05\u0d24\u0d4d \u0d2e\u0d3e\u0d31\u0d4d\u0d31\u0d3e\u0d02.', continueBtn: '\u0d24\u0d41\u0d1f\u0d30\u0d41\u0d15',
+    reporterLabel: '\u0d31\u0d3f\u0d2a\u0d4d\u0d2a\u0d4b\u0d7c\u0d1f\u0d4d\u0d1f\u0d7c', reporterDesc: '\u0d24\u0d46\u0d30\u0d41\u0d35\u0d40\u0d33\u0d3f\u0d2f\u0d3f\u0d32\u0d3e\u0d2f 0d2e\u0d43\u0d17\u0d19\u0d4d\u0d19\u0d33\u0d46 \u0d15\u0d23\u0d4d\u0d1f\u0d3e\u0d32\u0d4d\u200d \u0d31\u0d3f\u0d2a\u0d4d\u0d2a\u0d4b\u0d7c\u0d1f\u0d4d\u0d1f\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d2f\u0d41\u0d15.',
+    volunteerLabel: '\u0d38\u0d28\u0d4d\u0d28\u0d26\u0d4d\u0d27\u0d2a\u0d4d\u0d30\u0d35\u0d7c\u0d24\u0d4d\u0d24\u0d15\u0d7b / \u0d30\u0d15\u0d4d\u0d37\u0d3e\u0d2a\u0d4d\u0d30\u0d35\u0d7c\u0d24\u0d4d\u0d24\u0d15\u0d7b', volunteerDesc: '\u0d38\u0d2e\u0d40\u0d2a \u0d15\u0d47\u0d38\u0d41\u0d15\u0d33\u0d3f\u0d7d \u0d05\u0d31\u0d3f\u0d2f\u0d3f\u0d2a\u0d4d\u0d2a\u0d4d \u0d32\u0d2d\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d15, \u0d15\u0d4d\u0d32\u0d46\u0d2f\u0d3f\u0d02 \u0d1a\u0d46\u0d2f\u0d4d\u0d2f\u0d41\u0d15.',
+    ngoLabel: '\u0d0e\u0d7b.\u0d1c\u0d3f.\u0d12 / \u0d05\u0d2d\u0d2f\u0d15\u0d47\u0d28\u0d4d\u0d26\u0d4d\u0d30\u0d02', ngoDesc: '\u0d15\u0d47\u0d38\u0d4d \u0d15\u0d4d\u0d2f\u0d42 \u0d15\u0d48\u0d2f\u0d3e\u0d33\u0d41\u0d15, \u0d38\u0d28\u0d4d\u0d28\u0d26\u0d4d\u0d27\u0d2a\u0d4d\u0d30\u0d35\u0d7c\u0d24\u0d4d\u0d24\u0d15\u0d30\u0d46 \u0d15\u0d4b\u0d7c\u0d21\u0d3f\u0d28\u0d47\u0d31\u0d4d\u0d31\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d2f\u0d41\u0d15.',
+    liveRescueMap: '\u0d24\u0d24\u0d4d\u0d38\u0d2e\u0d2f \u0d30\u0d15\u0d4d\u0d37\u0d3e \u0d2e\u0d3e\u0d2a\u0d4d\u0d2a\u0d4d', location: '\u0d15\u0d4d\u0d2f\u0d4a\u0d1a\u0d4d\u0d1a\u0d3f, \u0d15\u0d47\u0d30\u0d33\u0d02',
+    snapPhoto: '\u0d2b\u0d4b\u0d1f\u0d4b \u0d0e\u0d1f\u0d41\u0d15\u0d4d\u0d15\u0d41\u0d15', snapSub: '\u0d2e\u0d43\u0d17\u0d24\u0d4d\u0d24\u0d46\u0d2f\u0d41\u0d02 \u0d05\u0d24\u0d3f\u0d28\u0d4d\u0d31\u0d46 \u0d05\u0d35\u0d38\u0d4d\u0d25\u0d2f\u0d41\u0d02 \u0d0e.\u0d06\u0d07. \u0d24\u0d3f\u0d30\u0d3f\u0d1a\u0d31\u0d3f\u0d2f\u0d41\u0d02.', uploadGallery: '\u0d17\u0d3e\u0d32\u0d31\u0d3f\u0d2f\u0d3f\u0d7d \u0d28\u0d3f\u0d28\u0d4d\u0d28\u0d4d \u0d05\u0d2a\u0d4d\u200c\u0d32\u0d4b\u0d21\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d2f\u0d41\u0d15',
+    confirmDetails: '\u0d35\u0d3f\u0d35\u0d30\u0d19\u0d4d\u0d19\u0d7e \u0d38\u0d4d\u0d25\u0d3f\u0d30\u0d40\u0d15\u0d30\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d15', confirmContinue: '\u0d38\u0d4d\u0d25\u0d3f\u0d30\u0d40\u0d15\u0d30\u0d3f\u0d1a\u0d4d\u0d1a\u0d4d \u0d24\u0d41\u0d1f\u0d30\u0d41\u0d15',
+    confirmLocation: '\u0d38\u0d4d\u0d25\u0d32\u0d02 \u0d38\u0d4d\u0d25\u0d3f\u0d30\u0d40\u0d15\u0d30\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d15', locationSub: '\u0d07\u0d24\u0d4d \u0d09\u0d1a\u0d3f\u0d24\u0d2e\u0d32\u0d4d\u0d32\u0d46\u0d19\u0d4d\u0d15\u0d3f\u0d7d \u0d2a\u0d3f\u0d7b \u0d24\u0d3f\u0d30\u0d41\u0d24\u0d4d\u0d24\u0d41\u0d15.', looksRight: '\u0d36\u0d30\u0d3f\u0d2f\u0d3e\u0d23\u0d4d',
+    howUrgent: '\u0d07\u0d24\u0d4d \u0d0e\u0d24\u0d4d\u0d30 \u0d05\u0d1f\u0d3f\u0d2f\u0d28\u0d4d\u0d24\u0d3f\u0d30\u0d2e\u0d3e\u0d23\u0d4d?', urgentSub: '\u0d07\u0d24\u0d4d \u0d30\u0d15\u0d4d\u0d37\u0d3e\u0d2a\u0d4d\u0d30\u0d35\u0d7c\u0d24\u0d4d\u0d24\u0d15\u0d30\u0d46 \u0d38\u0d39\u0d3e\u0d2f\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d02.',
+    addNote: '\u0d15\u0d41\u0d31\u0d3f\u0d2a\u0d4d\u0d2a\u0d4d \u0d1a\u0d47\u0d7c\u0d15\u0d4d\u0d15\u0d41\u0d15 (\u0d13\u0d2a\u0d4d\u0d37\u0d7b)', notePlaceholder: '\u0d35\u0d47\u0d31\u0d47\u0d24\u0d46\u0d19\u0d4d\u0d15\u0d3f\u0d32\u0d41\u0d02\u2026', voiceNote: '\u0d05\u0d24\u0d3f\u0d28\u0d4d \u0d2a\u0d15\u0d30\u0d02 \u0d36\u0d2c\u0d4d\u0d26\u0d38\u0d28\u0d4d\u0d26\u0d47\u0d36\u0d02 \u0d31\u0d46\u0d15\u0d4d\u0d15\u0d4b\u0d7c\u0d21\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d2f\u0d41\u0d15',
+    submitReport: '\u0d31\u0d3f\u0d2a\u0d4d\u0d2a\u0d4b\u0d7c\u0d1f\u0d4d\u0d1f\u0d4d \u0d38\u0d2e\u0d7c\u0d2a\u0d4d\u0d2a\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d15', caseReportedPrefix: '\u0d15\u0d47\u0d38\u0d4d', caseReportedSuffix: '\u0d31\u0d3f\u0d2a\u0d4d\u0d2a\u0d4b\u0d7c\u0d1f\u0d4d\u0d1f\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d24\u0d41',
+    caseReportedBody: '\u0d38\u0d2e\u0d40\u0d2a\u0d24\u0d4d\u0d24\u0d41\u0d33\u0d4d\u0d33 3 \u0d38\u0d28\u0d4d\u0d28\u0d26\u0d4d\u0d27\u0d2a\u0d4d\u0d30\u0d35\u0d7c\u0d24\u0d4d\u0d24\u0d15\u0d30\u0d46\u0d2f\u0d41\u0d02 1 \u0d05\u0d2d\u0d2f\u0d15\u0d47\u0d28\u0d4d\u0d26\u0d4d\u0d30\u0d24\u0d4d\u0d24\u0d46\u0d2f\u0d41\u0d02 \u0d05\u0d31\u0d3f\u0d2f\u0d3f\u0d1a\u0d4d\u0d1a\u0d3f\u0d1f\u0d4d\u0d1f\u0d41\u0d23\u0d4d\u0d1f\u0d4d.',
+    viewCase: '\u0d15\u0d47\u0d38\u0d4d \u0d15\u0d3e\u0d23\u0d41\u0d15', backToMap: '\u0d2e\u0d3e\u0d2a\u0d4d\u0d2a\u0d3f\u0d32\u0d47\u0d15\u0d4d\u0d15\u0d4d \u0d2e\u0d1f\u0d19\u0d4d\u0d19\u0d41\u0d15',
+    illHelp: '\u0d1e\u0d3e\u0d7b \u0d38\u0d39\u0d3e\u0d2f\u0d3f\u0d15\u0d4d\u0d15\u0d3e\u0d02', onThisCase: '\u0d28\u0d3f\u0d19\u0d4d\u0d19\u0d33\u0d4d\u200d \u0d08 \u0d15\u0d47\u0d38\u0d3f\u0d32\u0d3e\u0d23\u0d4d', markInProgress: '\u0d2a\u0d41\u0d30\u0d4b\u0d17\u0d24\u0d3f\u0d2f\u0d3f\u0d32\u0d3e\u0d23\u0d46\u0d28\u0d4d\u0d28\u0d4d \u0d05\u0d1f\u0d2f\u0d3e\u0d33\u0d2a\u0d4d\u0d2a\u0d46\u0d1f\u0d41\u0d24\u0d4d\u0d24\u0d41\u0d15', markResolved: '\u0d2a\u0d30\u0d3f\u0d39\u0d30\u0d3f\u0d1a\u0d4d\u0d1a\u0d24\u0d3e\u0d2f\u0d3f \u0d05\u0d1f\u0d2f\u0d3e\u0d33\u0d2a\u0d4d\u0d2a\u0d46\u0d1f\u0d41\u0d24\u0d4d\u0d24\u0d41\u0d15', caseResolvedLabel: '\u0d15\u0d47\u0d38\u0d4d \u0d2a\u0d30\u0d3f\u0d39\u0d30\u0d3f\u0d1a\u0d4d\u0d1a\u0d41',
+    myActivity: '\u0d0e\u0d28\u0d4d\u0d31\u0d46 \u0d2a\u0d4d\u0d30\u0d35\u0d7c\u0d24\u0d4d\u0d24\u0d28\u0d19\u0d4d\u0d19\u0d7e', tabReported: '\u0d31\u0d3f\u0d2a\u0d4d\u0d2a\u0d4b\u0d7c\u0d1f\u0d4d\u0d1f\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d24\u0d24\u0d4d', tabClaimed: '\u0d15\u0d4d\u0d32\u0d46\u0d2f\u0d3f\u0d02 \u0d1a\u0d46\u0d2f\u0d4d\u0d24\u0d24\u0d4d', tabResolved: '\u0d2a\u0d30\u0d3f\u0d39\u0d30\u0d3f\u0d1a\u0d4d\u0d1a\u0d24\u0d4d', nothingHere: '\u0d07\u0d35\u0d3f\u0d1f\u0d46 \u0d07\u0d24\u0d41\u0d35\u0d30\u0d46 \u0d12\u0d28\u0d4d\u0d1f\u0d41\u0d2e\u0d3f\u0d32\u0d4d\u0d32.',
+    sheltersVets: '\u0d05\u0d2d\u0d2f\u0d15\u0d47\u0d28\u0d4d\u0d26\u0d4d\u0d30\u0d19\u0d4d\u0d19\u0d33\u0d41\u0d02 \u0d35\u0d46\u0d31\u0d4d\u0d31\u0d41\u0d15\u0d33\u0d41\u0d02', listView: '\u0d32\u0d3f\u0d38\u0d4d\u0d31\u0d4d', mapView: '\u0d2e\u0d3e\u0d2a\u0d4d\u0d2a\u0d4d', services: '\u0d38\u0d47\u0d35\u0d28\u0d19\u0d4d\u0d19\u0d7e', address: '\u0d35\u0d3f\u0d32\u0d3e\u0d38\u0d02', call: '\u0d35\u0d3f\u0d33\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d15', directions: '\u0d35\u0d34\u0d3f \u0d15\u0d3e\u0d23\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d15',
+    editProfile: '\u0d2a\u0d4d\u0d30\u0d4a\u0d2b\u0d48\u0d7d \u0d0e\u0d21\u0d3f\u0d31\u0d4d\u0d31\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d2f\u0d41\u0d15', notifPrefs: '\u0d05\u0d31\u0d3f\u0d2f\u0d3f\u0d2a\u0d4d\u0d2a\u0d4d \u0d2e\u0d41\u0d7b\u0d17\u0d23\u0d28\u0d15\u0d33\u0d4d\u200d', language: '\u0d2d\u0d3e\u0d37', inviteFriends: '\u0d38\u0d41\u0d39\u0d43\u0d24\u0d4d\u0d24\u0d41\u0d15\u0d4d\u0d15\u0d33\u0d46 \u0d15\u0d4d\u0d37\u0d23\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d15', logOut: '\u0d32\u0d4b\u0d17\u0d4d \u0d14\u0d1f\u0d4d\u0d1f\u0d4d',
+    badges: '\u0d2c\u0d3e\u0d21\u0d4d\u0d1c\u0d41\u0d15\u0d33\u0d4d\u200d', statCases: '\u0d31\u0d3f\u0d2a\u0d4d\u0d2a\u0d4b\u0d7c\u0d1f\u0d4d\u0d1f\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d24 \u0d15\u0d47\u0d38\u0d41\u0d15\u0d33\u0d4d\u200d', statRescues: '\u0d15\u0d4d\u0d32\u0d46\u0d2f\u0d3f\u0d02 \u0d1a\u0d46\u0d2f\u0d4d\u0d24 \u0d30\u0d15\u0d4d\u0d37\u0d3e\u0d2a\u0d4d\u0d30\u0d35\u0d7c\u0d24\u0d4d\u0d24\u0d28\u0d19\u0d4d\u0d19\u0d7e', statResolved: '\u0d2e\u0d4a\u0d34\u0d02 \u0d2a\u0d30\u0d3f\u0d39\u0d30\u0d3f\u0d1a\u0d4d\u0d1a\u0d24\u0d4d',
+    notifications: '\u0d05\u0d31\u0d3f\u0d2f\u0d3f\u0d2a\u0d4d\u0d2a\u0d41\u0d15\u0d7e', readyAdoption: '\u0d38\u0d4d\u0d35\u0d40\u0d15\u0d30\u0d3f\u0d15\u0d4d\u0d15\u0d3e\u0d7b \u0d24\u0d2f\u0d4d\u0d2f\u0d3e\u0d31\u0d3e\u0d2f\u0d35', readyAdoptionSub: '\u0d30\u0d15\u0d4d\u0d37\u0d3f\u0d1a\u0d4d\u0d1a\u0d41 \u0d2a\u0d41\u0d28\u0d30\u0d1f\u0d3f\u0d38\u0d4d\u0d25\u0d3e\u0d2a\u0d3f\u0d1a\u0d4d\u0d1a\u0d35, \u0d12\u0d30\u0d41 \u0d35\u0d40\u0d1f\u0d4d \u0d0e\u0d24\u0d3f\u0d30\u0d41\u0d28\u0d4b\u0d15\u0d4d\u0d15\u0d41\u0d28\u0d4d\u0d28\u0d41.',
+    contactShelter: '\u0d05\u0d2d\u0d2f\u0d15\u0d47\u0d28\u0d4d\u0d26\u0d4d\u0d30\u0d35\u0d41\u0d2e\u0d3e\u0d2f\u0d3f \u0d2c\u0d28\u0d4d\u0d27\u0d2a\u0d4d\u0d2a\u0d46\u0d1f\u0d41\u0d15', story: '\u0d15\u0d3e\u0d25', save: '\u0d38\u0d47\u0d35\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d2f\u0d41\u0d15', cancel: '\u0d31\u0d26\u0d4d\u0d26\u0d3e\u0d15\u0d4d\u0d15\u0d41\u0d15', name: '\u0d2a\u0d47\u0d30\u0d4d',
+    slide1: ['\u0d0e\u0d32\u0d4d\u0d32\u0d3e \u0d24\u0d46\u0d30\u0d41\u0d35\u0d41\u0d15\u0d33\u0d4d\u200d\u0d15\u0d4d\u0d15\u0d41\u0d02\\n\u0d12\u0d30\u0d41 \u0d05\u0d35\u0d38\u0d30\u0d02 \u0d05\u0d30\u0d4d\u0d39\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d28\u0d4d\u0d28\u0d41', '\u0d31\u0d4b\u0d21\u0d4d\u0d1f\u0d3f\u0d7d \u0d2a\u0d46\u0d1f\u0d4d\u0d1f\u0d3f\u0d15\u0d3f\u0d1f\u0d15\u0d4d\u0d15\u0d41\u0d28\u0d4d\u0d28 \u0d28\u0d3e\u0d2f\u0d4d\u0d15\u0d4d\u0d15\u0d4b \u0d2a\u0d4d\u0d2a\u0d42\u0d1c\u0d3f\u0d1a\u0d4d\u0d1a\u0d2f\u0d4d\u0d15\u0d4d\u0d15\u0d4b \u0d2a\u0d38\u0d41\u0d35\u0d3f\u0d28\u0d4b \u0d15\u0d23\u0d4d\u0d1f\u0d3e\u0d32\u0d4d\u200d 30 \u0d38\u0d46\u0d15\u0d4d\u0d15\u0d28\u0d4d\u0d31\u0d3f\u0d28\u0d41\u0d33\u0d4d\u0d33\u0d3f\u0d7d \u0d31\u0d3f\u0d2a\u0d4d\u0d2a\u0d4b\u0d7c\u0d1f\u0d4d\u0d1f\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d2f\u0d41\u0d15.'],
+    slide2: ['\u0d05\u0d1f\u0d41\u0d24\u0d4d\u0d24\u0d41\u0d33\u0d4d\u0d33 \u0d30\u0d15\u0d4d\u0d37\u0d3e\u0d2a\u0d4d\u0d30\u0d35\u0d7c\u0d24\u0d4d\u0d24\u0d15\u0d28\u0d46\\n\u0d05\u0d31\u0d3f\u0d2f\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d02', '\u0d38\u0d3e\u0d2e\u0d40\u0d2a\u0d24\u0d4d\u0d24\u0d41\u0d33\u0d4d\u0d33 \u0d38\u0d28\u0d4d\u0d28\u0d26\u0d4d\u0d27\u0d2a\u0d4d\u0d30\u0d35\u0d7c\u0d24\u0d4d\u0d24\u0d15\u0d30\u0d3f\u0d32\u0d47\u0d2f\u0d4d\u0d15\u0d4d\u0d15\u0d41\u0d02 \u0d05\u0d1a\u0d4d\u0d1a\u0d47\u0d24\u0d4d\u0d24\u0d4d \u0d38\u0d39\u0d3e\u0d2f\u0d02 \u0d35\u0d47\u0d17\u0d24\u0d4d\u0d24\u0d3f\u0d32\u0d3e\u0d15\u0d41\u0d02.'],
+    slide3: ['\u0d28\u0d2e\u0d4d\u0d2e\u0d47\u0d32\u0d4d\u200d\u0d32\u0d3e\u0d02, \u0d28\u0d17\u0d30\u0d24\u0d4d\u0d24\u0d3f\u0d28\u0d4d\u0d31\u0d46 \u0d15\u0d30\u0d41\u0d24\u0d32\u0d3f\u0d7d\\n\u0d28\u0d3e\u0d2e\u0d4d \u0d38\u0d39\u0d3e\u0d2f\u0d3f\u0d15\u0d4d\u0d15\u0d41\u0d28\u0d4d\u0d28\u0d41', '\u0d28\u0d3f\u0d19\u0d4d\u0d19\u0d33\u0d4d\u200d \u0d31\u0d3f\u0d2a\u0d4d\u0d2a\u0d4b\u0d7c\u0d1f\u0d4d\u0d1f\u0d4d \u0d1a\u0d46\u0d2f\u0d4d\u0d2f\u0d41\u0d28\u0d4d\u0d28 \u0d12\u0d30\u0d4b \u0d15\u0d47\u0d38\u0d41\u0d02 \u0d28\u0d17\u0d30\u0d24\u0d4d\u0d24\u0d3f\u0d32\u0d47 \u0d24\u0d46\u0d30\u0d41\u0d35\u0d41\u0d15\u0d33\u0d41\u0d1f\u0d46 \u0d15\u0d4d\u0d37\u0d47\u0d2e\u0d24\u0d4d\u0d24\u0d3f\u0d28\u0d4d\u0d31\u0d46 \u0d1a\u0d3f\u0d24\u0d4d\u0d30\u0d02 \u0d24\u0d40\u0d7c\u0d15\u0d4d\u0d15\u0d41\u0d28\u0d4d\u0d28\u0d41.'],
+  },
+  hi: {
+    navMap: '\u092e\u0948\u092a', navCases: '\u092e\u093e\u092e\u0932\u0947', navAdopt: '\u0905\u092a\u0928\u093e\u090f\u0902', navShelters: '\u0906\u0936\u094d\u0930\u092f', navProfile: '\u092a\u094d\u0930\u094b\u092b\u093c\u093e\u0907\u0932',
+    skip: '\u091b\u094b\u0921\u093c\u0947\u0902', next: '\u0906\u0917\u0947', getStarted: '\u0936\u0941\u0930\u0942 \u0915\u0930\u0947\u0902',
+    howHelp: '\u0906\u092a \u0915\u0948\u0938\u0947 \u092e\u0926\u0926 \u0915\u0930\u0947\u0902\u0917\u0947?', howHelpSub: '\u0936\u0941\u0930\u0942 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0908 \u092e\u0942\u0932\u093f\u0915\u093e \u0932\u0947\u0902 \u2014 \u092c\u093e\u0926 \u0915\u200d\u092d\u0940 \u092c\u0926\u0932 \u0938\u0915\u0924\u0947 \u0939\u0948\u0902.', continueBtn: '\u091c\u093e\u0930\u0940 \u0930\u0916\u0947\u0902',
+    reporterLabel: '\u0930\u093f\u092a\u094b\u0930\u094d\u091f\u0930', reporterDesc: '\u0938\u0921\u093c\u0915 \u092a\u0930 \u092a\u0930\u0947\u0936\u093e\u0928 \u091c\u093e\u0928\u0935\u0930\u094b\u0902 \u0915\u094b \u0926\u0947\u0916\u0947\u0902 \u0914\u0930 \u0930\u093f\u092a\u094b\u0930\u094d\u091f \u0915\u0930\u0947\u0902.',
+    volunteerLabel: '\u0938\u094d\u0935\u092f\u0902\u0938\u0947\u0935\u0915 / \u092c\u091a\u093e\u0935\u0915\u0930\u094d\u0924\u093e', volunteerDesc: '\u0928\u091c\u0926\u0940\u0915\u0940 \u0915\u0947 \u092e\u093e\u092e\u0932\u094b\u0902 \u0915\u0940 \u0938\u0942\u091a\u0928\u093e \u092a\u093e\u0947\u0902, \u0915\u094d\u0932\u0947\u092e \u0915\u0930\u0947\u0902 \u0914\u0930 \u092c\u091a\u093e\u0935 \u0915\u094b \u0938\u092e\u0928\u094d\u0935\u092f \u0915\u0930\u0947\u0902.',
+    ngoLabel: '\u0915\u0932\u094d\u092f\u093e\u0923\u0915\u093e\u0930\u0940 \u0938\u0902\u0938\u094d\u0925\u093e / \u0906\u0936\u094d\u0930\u092f', ngoDesc: '\u0905\u092a\u0928\u0940 \u0915\u0947\u0938 \u0915\u094d\u092f\u0942 \u092a\u094d\u0930\u092c\u0902\u0927\u093f\u0924 \u0915\u0930\u0947\u0902, \u0938\u094d\u0935\u092f\u0902\u0938\u0947\u0935\u0915\u094b\u0902 \u0915\u094b \u0938\u0902\u092f\u094b\u091c\u093f\u0924 \u0915\u0930\u0947\u0902.',
+    liveRescueMap: '\u0932\u093e\u0907\u0935 \u0930\u0947\u0938\u094d\u0915\u094d\u092f\u0942 \u092e\u0947\u092a', location: '\u0915\u094b\u091a\u0940, \u0915\u0947\u0930\u0932',
+    snapPhoto: '\u092b\u094b\u091f\u094b \u0932\u0947\u0902', snapSub: '\u0939\u0947\u0918\u0930\u094a AI \u091c\u093e\u0928\u0935\u0930 \u0914\u0930 \u0909\u0938\u0915\u0940 \u0938\u094d\u0925\u093f\u0924\u093f \u0915\u0940 \u092a\u0939\u091a\u093e\u0928 \u0915\u0930\u0947\u0917\u093e.', uploadGallery: '\u0917\u0947\u0932\u0930\u0940 \u0938\u0947 \u0905\u092a\u0932\u094b\u0921 \u0915\u0930\u0947\u0902',
+    confirmDetails: '\u0935\u093f\u0935\u0930\u0923 \u0915\u0940 \u092a\u0941\u0937\u094d\u091f\u093f \u0915\u0930\u0947\u0902', confirmContinue: '\u092a\u0941\u0937\u094d\u091f\u093f \u0915\u0930\u0947\u0902 \u0914\u0930 \u0906\u0917\u0947 \u092c\u0922\u093c\u0947\u0902',
+    confirmLocation: '\u0938\u094d\u0925\u093e\u0928 \u0915\u0940 \u092a\u0941\u0937\u094d\u091f\u093f \u0915\u0930\u0947\u0902', locationSub: '\u092f\u0939 \u0906\u092a\u0915\u0947 \u0921\u093f\u0935\u093e\u0907\u0938 \u0938\u0947 \u0938\u094d\u0935\u0924\u0903 \u091f\u0948\u0917 \u0939\u0941\u0906 \u0939\u0948\u0964 \u0905\u0917\u0930 \u0917\u0932\u0924 \u0939\u094b \u0924\u094b \u092a\u093f\u0928 \u0938\u0939\u0940 \u0915\u0930\u0947\u0902.', looksRight: '\u0938\u0939\u0940 \u0932\u0917 \u0930\u0939\u093e \u0939\u0948',
+    howUrgent: '\u092f\u0939 \u0915\u093f\u0924\u0928\u093e \u0917\u0902\u092d\u0940\u0930 \u0939\u0948?', urgentSub: '\u0907\u0938\u0938\u0947 \u092c\u091a\u093e\u0935\u0915\u0930\u094d\u0924\u093e \u092a\u0939\u0932\u0947 \u091c\u0935\u093e\u092c \u0926\u0947\u0928\u093e \u0924\u092f \u0915\u0930\u0947\u0902\u0917\u0947.',
+    addNote: '\u091f\u093f\u092a\u094d\u092a\u0923\u0940 \u091c\u094b\u0921\u093c\u0947\u0902 (\u0935\u0948\u0915\u0932\u094d\u0932\u093f\u0915)', notePlaceholder: '\u0914\u0930 \u0915\u0941\u0932 \u092c\u0924\u093e\u0928\u093e \u091a\u093e\u0939\u0947\u0902 \u0924\u094b \u0932\u093f\u0916\u0947\u0902\u2026', voiceNote: '\u0907\u0938\u0915\u0947 \u092c\u0926\u0932\u0947 \u0935\u0949\u0907\u0938 \u0928\u094b\u091f \u0930\u093f\u0915\u0949\u0930\u094d\u0921 \u0915\u0930\u0947\u0902',
+    submitReport: '\u0930\u093f\u092a\u094b\u0930\u094d\u091f \u092d\u0947\u091c\u0947\u0902', caseReportedPrefix: '\u092e\u093e\u092e\u0932\u093e', caseReportedSuffix: '\u0926\u0930\u094d\u091c \u0939\u0941\u0906',
+    caseReportedBody: '\u0906\u0938-\u092a\u093e\u0938 \u0915\u0947 3 \u0938\u094d\u0935\u092f\u0902\u0938\u0947\u0935\u0915\u094b\u0902 \u0914\u0930 1 \u0906\u0936\u094d\u0930\u092f \u0915\u094b \u0938\u0942\u091a\u093f\u0924 \u0915\u0930 \u0926\u093f\u092f\u093e \u0917\u092f\u093e \u0939\u0948\u0964',
+    viewCase: '\u092e\u093e\u092e\u0932\u093e \u0926\u0947\u0916\u0947\u0902', backToMap: '\u092e\u0947\u092a \u092a\u0930 \u0935\u093e\u092a\u0938 \u091c\u093e\u0947\u0902',
+    illHelp: '\u092e\u0947\u0902 \u092e\u0926\u0926 \u0915\u0930\u0942\u0902\u0917\u093e', onThisCase: '\u0906\u092a \u0907\u0938 \u092e\u093e\u092e\u0932\u0947 \u092a\u0930 \u0939\u0948\u0902', markInProgress: '\u092a\u094d\u0930\u0917\u0924\u093f \u092a\u0930 \u0939\u0948 \u0906\u0902\u0915\u093f\u0924 \u0915\u0930\u0947\u0902', markResolved: '\u0939\u0932 \u0915\u093f\u092f\u093e \u0917\u092f\u093e \u0906\u0902\u0915\u093f\u0924 \u0915\u0930\u0947\u0902', caseResolvedLabel: '\u092e\u093e\u092e\u0932\u093e \u0939\u0932 \u0939\u094b \u0917\u092f\u093e',
+    myActivity: '\u092e\u0947\u0930\u0940 \u0917\u0924\u093f\u0935\u093f\u0927\u093f\u092f\u093e\u0902', tabReported: '\u0926\u0930\u094d\u091c \u0915\u093f\u090f \u0917\u090f', tabClaimed: '\u0915\u094d\u0932\u0947\u092e \u0915\u093f\u090f \u0917\u090f', tabResolved: '\u0939\u0932 \u0939\u0941\u090f', nothingHere: '\u092f\u0939\u093e\u0902 \u0905\u092d\u0940 \u0915\u0941\u091b \u0928\u0939\u0940\u0902 \u0939\u0948\u0964',
+    sheltersVets: '\u0906\u0936\u094d\u0930\u092f \u0914\u0930 \u092a\u0936\u0941 \u091a\u093f\u0915\u093f\u0924\u094d\u0938\u0915', listView: '\u0938\u0942\u091a\u0940', mapView: '\u092e\u0947\u092a', services: '\u0938\u0947\u0935\u093e\u0913\u0902', address: '\u092a\u0924\u093e', call: '\u0915\u0949\u0932 \u0915\u0930\u0947\u0902', directions: '\u0926\u093f\u0936\u093e-\u0928\u093f\u0930\u094d\u0926\u0947\u0936',
+    editProfile: '\u092a\u094d\u0930\u094b\u092b\u093c\u093e\u0907\u0932 \u0938\u0902\u092a\u093e\u0926\u093f\u0924 \u0915\u0930\u0947\u0902', notifPrefs: '\u0938\u0942\u091a\u0928\u093e \u092a\u094d\u0930\u093e\u0925\u092e\u093f\u0915\u0924\u093e\u090f\u0902', language: '\u092d\u093e\u0937\u093e', inviteFriends: '\u0926\u094b\u0938\u094d\u0924\u094b\u0902 \u0915\u094b \u0906\u092e\u0902\u0924\u094d\u0930\u093f\u0924 \u0915\u0930\u0947\u0902', logOut: '\u0932\u0949\u0917 \u0906\u0909\u091f',
+    badges: '\u092c\u0947\u091c', statCases: '\u0930\u093f\u092a\u094b\u0930\u094d\u091f \u0915\u093f\u090f \u0917\u090f \u092e\u093e\u092e\u0932\u0947', statRescues: '\u0915\u094d\u0932\u0947\u092e \u0915\u093f\u090f \u0917\u090f \u092c\u091a\u093e\u0935', statResolved: '\u0915\u0941\u0932 \u0939\u0932 \u0939\u0941\u0906',
+    notifications: '\u0938\u0942\u091a\u0928\u093e\u0913\u0902', readyAdoption: '\u0905\u092a\u0928\u093e\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0924\u0947\u092f\u093e\u0930', readyAdoptionSub: '\u092c\u091a\u093e\u092f\u093e \u0917\u092f\u093e \u0914\u0930 \u0938\u094d\u0935\u0938\u094d\u0925 \u0915\u093f\u092f\u093e \u0917\u092f\u093e, \u0918\u0930 \u0915\u0940 \u0924\u0932\u093e\u0936 \u0645\u0947\u0902\u0964',
+    contactShelter: '\u0906\u0936\u094d\u0930\u092f \u0938\u0947 \u0938\u0902\u092a\u0930\u094d\u0915 \u0915\u0930\u0947\u0902', story: '\u0915\u0939\u093e\u0928\u0940', save: '\u0938\u0947\u0935 \u0915\u0930\u0947\u0902', cancel: '\u0930\u0926\u094d\u0926 \u0915\u0930\u0947\u0902', name: '\u0928\u093e\u092e',
+    slide1: ['\u0939\u0930 \u0906\u0935\u093e\u0930\u093e \u091c\u093e\u0928\u0935\u0930 \u0915\u094b \u092e\u093f\u0932\u0928\u093e \u091a\u093e\u0939\u093f\u090f\\n\u0910\u0938\u0947 \u092e\u094c\u0915\u0947', '\u0938\u0921\u093c\u0915 \u092a\u0930 \u0915\u093f\u0938\u0940 \u0915\u0941\u0924\u094d\u0924\u0947, \u092c\u093f\u0932\u094d\u0932\u0940 \u092f\u093e \u0917\u093e\u092f \u0915\u094b \u092e\u0941\u0938\u0940\u092c\u0924 \u092e\u0947\u0902 \u0926\u0947\u0916\u093e? 30 \u0938\u0947\u0915\u0902\u0921 \u0938\u0947 \u0915\u092e \u0938\u092e\u092f \u092e\u0947\u0902 \u0930\u093f\u092a\u094b\u0930\u094d\u091f \u0915\u0930\u0947\u0902.'],
+    slide2: ['\u0928\u091c\u0926\u0940\u0915\u0940 \u092c\u091a\u093e\u0935\u0915\u0930\u094d\u0924\u093e\\n\u0915\u094b \u0938\u0942\u091a\u0928\u093e \u092e\u093f\u0932\u0924\u0940 \u0939\u0948', '\u0906\u092a\u0915\u0940 \u0930\u093f\u092a\u094b\u0930\u094d\u091f \u0924\u0941\u0930\u0902\u0924 \u0928\u091c\u0926\u0940\u0915\u0940 \u0938\u094d\u0935\u092f\u0902\u0938\u0947\u0935\u0915\u094b\u0902, \u0910\u0928\u091c\u0940\u0913 \u0914\u0930 \u0906\u0936\u094d\u0930\u092f\u094b\u0902 \u0924\u0915 \u092a\u0939\u0941\u0902\u091a\u0924\u0940 \u0939\u0948\u0964'],
+    slide3: ['\u0938\u093e\u0925 \u092e\u093f\u0932\u0915\u0930, \u0939\u092e \u0936\u0939\u0930 \u0915\u0940\\n\u0926\u0947\u0916\u092d\u093e\u0932 \u0915\u093e \u092e\u093e\u092a \u092c\u0928\u093e\u0924\u0947 \u0939\u0948\u0902', '\u0939\u0930 \u0930\u093f\u092a\u094b\u0930\u094d\u091f \u0936\u0939\u0930 \u092e\u0947\u0902 \u0938\u0921\u093c\u0915 \u091c\u0940\u0935\u094b\u0902 \u0915\u0940 \u0938\u094d\u0925\u093f\u0924\u093f \u0915\u0940 \u0947\u0915 \u0932\u093e\u0907\u0935 \u0924\u0938\u0935\u0940\u0930 \u092c\u0928\u093e\u0924\u0940 \u0939\u0948\u0964'],
+  },
+};
+
+const URGENCY = {
+  critical: { label: 'Critical', color: '#de5b3e', bg: '#fbeae5' },
+  attention: { label: 'Needs attention', color: '#c9860f', bg: '#fbf0dc' },
+  monitoring: { label: 'Monitoring', color: '#3f8a5e', bg: '#e7f2ec' },
+};
+const ICON = {
+  home: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 11.5L12 4l8 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10v9a1 1 0 001 1h4v-6h2v6h4a1 1 0 001-1v-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  cases: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="5" y="4" width="14" height="17" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M9 3h6v3H9z" stroke="currentColor" stroke-width="1.7"/><path d="M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  adopt: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.4-9.6-9C.5 8.7 2 5 5.5 5c2 0 3.3 1.2 4 2.2C10.2 6.2 11.5 5 13.5 5 17 5 18.5 8.7 16.6 12 14 16.6 12 21 12 21z" stroke="currentColor" stroke-width="1.7"/></svg>',
+  shelters: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.5 7-11a7 7 0 10-14 0c0 4.5 7 11 7 11z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="10" r="2.3" stroke="currentColor" stroke-width="1.7"/></svg>',
+  profile: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.7"/><path d="M4 20c0-4 3.5-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  bell: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 10a6 6 0 1112 0c0 3 1 5 2 6H4c1-1 2-3 2-6z" stroke="currentColor" stroke-width="1.7"/></svg>',
+  chat: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H8l-4 4z" stroke="currentColor" stroke-width="1.7"/></svg>',
+  check: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2"/></svg>',
+  claim: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.4-9.6-9C.5 8.7 2 5 5.5 5c2 0 3.3 1.2 4 2.2C10.2 6.2 11.5 5 13.5 5 17 5 18.5 8.7 16.6 12 14 16.6 12 21 12 21z" stroke="currentColor" stroke-width="1.7"/></svg>',
+  night: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8 8 0 119.5 4 6.5 6.5 0 0020 14.5z" stroke="currentColor" stroke-width="1.7"/></svg>',
+  photo: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="13.5" r="3.5" stroke="currentColor" stroke-width="1.6"/></svg>',
+  globe: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18" stroke="currentColor" stroke-width="1.4"/></svg>',
+  invite: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M8 12a4 4 0 100-8 4 4 0 000 8zM2 21c0-3.5 2.7-6 6-6s6 2.5 6 6M17 8v6M14 11h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  logout: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+};
+
+class Component extends DCLogic {
+  state = {
+    screen: 'onboarding',
+    onboardIndex: 0,
+    role: null,
+    speciesFilter: 'All',
+    urgencyFilter: 'All',
+    selectedPinId: null,
+    activeCaseId: null,
+    myTab: 'reported',
+    shelterView: 'list',
+    activeShelterId: null,
+    activeAdoptId: null,
+    cases: CASES.map(c => ({ ...c })),
+    report: { step: 1, photoTaken: false, analyzing: false, analyzed: false, species: 'Dog', breedGuess: 'Indie mix (AI guess)', tags: ['Limping', 'Visible wound'], note: '', urgency: null, locationX: 50, locationY: 46 },
+    newCaseId: null,
+    chatInput: '',
+    chatMessages: [
+      { from: 'them', text: "Hi! I saw your report on the kitten near the parked car — heading there now.", time: '10:32 AM' },
+      { from: 'me', text: 'Thank you so much! It was hiding under a blue car, near the tea shop.', time: '10:33 AM' },
+      { from: 'them', text: 'Got it, on my way. Should reach in about 15 min.', time: '10:34 AM' },
+    ],
+    notifications: NOTIFS.map(n => ({ ...n })),
+    toast: null,
+    profileName: 'Ravi Menon',
+    editProfileOpen: false,
+    editNameDraft: 'Ravi Menon',
+    notifPrefsOn: true,
+    languageCode: 'en',
+    captureChoiceOpen: false,
+    ngoNoteDraft: '',
+    caseDetailFrom: 'home',
+  };
+
+  galleryInputRef = React.createRef();
+  triggerGalleryPick = () => { if (this.galleryInputRef.current) this.galleryInputRef.current.click(); };
+  stopPropagation = (e) => e.stopPropagation();
+  openCaptureChoice = () => this.setState({ captureChoiceOpen: true });
+  closeCaptureChoice = () => this.setState({ captureChoiceOpen: false });
+  chooseTakePhoto = () => { this.setState({ captureChoiceOpen: false, report: { ...this.state.report, cameraActive: true } }); };
+  chooseGallery = () => { this.setState({ captureChoiceOpen: false }); this.triggerGalleryPick(); };
+  shutterAction = () => { if (this.state.report.cameraActive) this.takePhoto(); else this.openCaptureChoice(); };
+
+  setPinFromEvent = (clientX, clientY, rect) => {
+    const x = Math.min(100, Math.max(0, ((clientX - rect.left) / rect.width) * 100));
+    const y = Math.min(100, Math.max(0, ((clientY - rect.top) / rect.height) * 100));
+    this.setState(s => ({ report: { ...s.report, locationX: x, locationY: y } }));
+  };
+  moveLocationPin = (e) => this.setPinFromEvent(e.clientX, e.clientY, e.currentTarget.getBoundingClientRect());
+  startPinDrag = (e) => {
+    e.stopPropagation();
+    const rect = e.currentTarget.parentElement.getBoundingClientRect();
+    const onMove = (ev) => this.setPinFromEvent(ev.clientX, ev.clientY, rect);
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+  handleFileChosen = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    this.setState({ report: { ...this.state.report, photoUrl: url, step: 2, photoTaken: true, analyzing: true, analyzed: false } });
+    setTimeout(() => this.setState(s => ({ report: { ...s.report, analyzing: false, analyzed: true } })), 1100);
+  };
+
+  showToast(msg) {
+    this.setState({ toast: msg });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ toast: null }), 2200);
+  }
+
+  go(screen) { this.setState({ screen }); }
+
+  skipOnboarding = () => this.setState({ screen: 'roleSelect' });
+  onboardNext = () => {
+    const i = this.state.onboardIndex;
+    if (i < ONBOARD.length - 1) this.setState({ onboardIndex: i + 1 });
+    else this.setState({ screen: 'roleSelect' });
+  };
+  pickRole = (r) => this.setState({ role: r });
+  confirmRole = () => {
+    const r = this.state.role;
+    if (!r) return;
+    this.setState({ screen: r === 'ngo' ? 'ngoDashboard' : r === 'volunteer' ? 'myCases' : 'home', myTab: r === 'volunteer' ? 'nearby' : 'reported' });
+  };
+  goNgoDashboard = () => this.setState({ screen: 'ngoDashboard' });
+  goNgoQueue = () => this.setState({ screen: 'ngoQueue' });
+  fabAction = () => {
+    if (this.state.role === 'volunteer') {
+      const s = this.state;
+      const nearest = s.cases.filter(c => c.status === 'open').sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))[0];
+      if (nearest) {
+        this.setState(st => ({ cases: st.cases.map(c => c.id === nearest.id ? { ...c, status: 'claimed', claimedBy: 'You' } : c) }));
+        this.showToast('Claimed nearest case: ' + nearest.id);
+      } else {
+        this.showToast('No unclaimed cases nearby');
+      }
+    } else {
+      this.startReport();
+    }
+  };
+  reassignActiveCase = () => {
+    const names = ['Kavya R.', 'Arjun S.', 'Meera K.', 'You'];
+    this.setState(s => {
+      const cur = s.cases.find(c => c.id === s.activeCaseId);
+      const next = names[(names.indexOf(cur && cur.claimedBy) + 1) % names.length];
+      return { cases: s.cases.map(c => c.id === s.activeCaseId ? { ...c, status: c.status === 'open' ? 'claimed' : c.status, claimedBy: next } : c) };
+    });
+    this.showToast('Reassigned');
+  };
+  setNgoNote = (e) => this.setState({ ngoNoteDraft: e.target.value });
+  verifyActiveCase = () => this.showToast('Resolution verified');
+
+  setSpeciesFilter = (v) => this.setState({ speciesFilter: v, selectedPinId: null });
+  setUrgencyFilter = (v) => this.setState({ urgencyFilter: v, selectedPinId: null });
+  selectPin = (id) => this.setState({ selectedPinId: id });
+
+  goNotifications = () => this.setState({ screen: 'notifications' });
+  goHome = () => this.setState({ screen: 'home' });
+
+  startReport = () => this.setState({ screen: 'report', report: { step: 1, photoTaken: false, analyzing: false, analyzed: false, species: 'Dog', breedGuess: 'Indie mix (AI guess)', tags: ['Limping', 'Visible wound'], note: '', urgency: null, photoUrl: null, cameraActive: false, locationX: 50, locationY: 46 } });
+  reportBack = () => {
+    const st = this.state.report.step;
+    if (st > 1 && st < 5) this.setState({ report: { ...this.state.report, step: st - 1 } });
+    else this.setState({ screen: 'home' });
+  };
+  takePhoto = () => {
+    this.setState({ report: { ...this.state.report, step: 2, photoTaken: true, analyzing: true, analyzed: false, cameraActive: false } });
+    setTimeout(() => this.setState(s => ({ report: { ...s.report, analyzing: false, analyzed: true } })), 1100);
+  };
+  setSpecies = (sp) => this.setState({ report: { ...this.state.report, species: sp } });
+  toggleTag = (tag) => {
+    const tags = this.state.report.tags.includes(tag) ? this.state.report.tags.filter(t => t !== tag) : [...this.state.report.tags, tag];
+    this.setState({ report: { ...this.state.report, tags } });
+  };
+  reportNext = () => this.setState({ report: { ...this.state.report, step: this.state.report.step + 1 } });
+  setNote = (e) => this.setState({ report: { ...this.state.report, note: e.target.value } });
+  setUrgencyDraft = (u) => this.setState({ report: { ...this.state.report, urgency: u } });
+  submitReport = () => {
+    if (!this.state.report.urgency) return;
+    const r = this.state.report;
+    const id = 'C-' + (1043 + this.state.cases.length);
+    const newCase = { id, species: r.species, breed: r.breedGuess, tags: r.tags, urgency: r.urgency, status: 'open', reporter: 'You', distance: '0.2 km', time: 'Just now', note: r.note, x: 50, y: 50 };
+    this.setState({ cases: [newCase, ...this.state.cases], newCaseId: id, report: { ...r, step: 5 } });
+  };
+  viewNewCase = () => this.setState({ screen: 'caseDetail', activeCaseId: this.state.newCaseId });
+  backToHomeFromReport = () => this.setState({ screen: 'home' });
+
+  openCase = (id) => this.setState({ screen: 'caseDetail', activeCaseId: id, caseDetailFrom: this.state.screen === 'caseDetail' ? this.state.caseDetailFrom : this.state.screen });
+  closeCaseDetail = () => this.setState({ screen: this.state.caseDetailFrom || 'home' });
+  claimActiveCase = () => {
+    this.setState(s => ({ cases: s.cases.map(c => c.id === s.activeCaseId ? { ...c, status: 'claimed', claimedBy: 'You' } : c) }));
+    this.showToast('Case claimed — reporter notified');
+  };
+  advanceActiveCase = () => {
+    this.setState(s => ({
+      cases: s.cases.map(c => {
+        if (c.id !== s.activeCaseId) return c;
+        if (c.status === 'claimed') return { ...c, status: 'in_progress' };
+        if (c.status === 'in_progress') return { ...c, status: 'resolved' };
+        return c;
+      }),
+    }));
+  };
+  openChat = () => this.setState({ screen: 'chat' });
+  closeChat = () => this.setState({ screen: 'caseDetail' });
+  setChatInput = (e) => this.setState({ chatInput: e.target.value });
+  sendChat = () => {
+    const text = this.state.chatInput.trim();
+    if (!text) return;
+    this.setState(s => ({ chatMessages: [...s.chatMessages, { from: 'me', text, time: 'Now' }], chatInput: '' }));
+    setTimeout(() => this.setState(s => ({ chatMessages: [...s.chatMessages, { from: 'them', text: 'Got it, thanks for the update!', time: 'Now' }] })), 900);
+  };
+
+  setMyTab = (t) => this.setState({ myTab: t });
+
+  setShelterView = { list: () => this.setState({ shelterView: 'list' }), map: () => this.setState({ shelterView: 'map' }) };
+  openShelter = (id) => this.setState({ screen: 'shelterDetail', activeShelterId: id });
+  closeShelterDetail = () => this.setState({ screen: 'shelters' });
+
+  openEditProfile = () => this.setState({ editProfileOpen: true, editNameDraft: this.state.profileName });
+  closeEditProfile = () => this.setState({ editProfileOpen: false });
+  setProfileName = (e) => this.setState({ editNameDraft: e.target.value });
+  saveProfile = () => {
+    this.setState({ profileName: this.state.editNameDraft || this.state.profileName, editProfileOpen: false });
+    this.showToast('Profile updated');
+  };
+  toggleNotifPrefs = () => {
+    this.setState(s => ({ notifPrefsOn: !s.notifPrefsOn }));
+    this.showToast(this.state.notifPrefsOn ? 'Notifications muted' : 'Notifications enabled');
+  };
+  setLanguage = (e) => {
+    const code = e.target.value;
+    this.setState({ languageCode: code });
+    const names = { en: 'English', ml: '\u0d2e\u0d32\u0d2f\u0d3e\u0d33\u0d02', hi: '\u0939\u093f\u0928\u094d\u0926\u0940' };
+    this.showToast('Language: ' + names[code]);
+  };
+  inviteFriends = () => this.showToast('Invite link copied to clipboard');
+  logOut = () => this.setState({ screen: 'onboarding', onboardIndex: 0, role: null });
+
+  openAdopt = (id) => this.setState({ screen: 'adoptDetail', activeAdoptId: id });
+  closeAdoptDetail = () => this.setState({ screen: 'adopt' });
+  expressInterest = () => this.showToast('Interest sent to the shelter!');
+
+  renderVals() {
+    const s = this.state;
+    const t = STRINGS[s.languageCode] || STRINGS.en;
+    const isOnboarding = s.screen === 'onboarding';
+    const roleLabels = { reporter: t.reporterLabel, volunteer: t.volunteerLabel, ngo: t.ngoLabel };
+    const roleMeta = (id) => ({
+      select: () => this.pickRole(id),
+      border: s.role === id ? '#1f5d50' : 'rgba(23,48,43,0.12)',
+      bg: s.role === id ? '#e7f2ec' : '#fff',
+      iconBg: s.role === id ? '#1f5d50' : 'rgba(23,48,43,0.35)',
+      dotBg: s.role === id ? '#1f5d50' : 'transparent',
+    });
+    const reporterM = roleMeta('reporter'), volunteerM = roleMeta('volunteer'), ngoM = roleMeta('ngo');
+
+    const urgencyMeta = (u) => URGENCY[u] || URGENCY.monitoring;
+    const withMeta = (c) => ({ ...c, urgencyLabel: urgencyMeta(c.urgency).label, urgencyColor: urgencyMeta(c.urgency).color, urgencyBg: urgencyMeta(c.urgency).bg });
+
+    const filteredCases = s.cases.filter(c => c.status !== 'resolved').filter(c => s.role !== 'volunteer' || c.status === 'open').filter(c => s.speciesFilter === 'All' || c.species === s.speciesFilter).filter(c => s.urgencyFilter === 'All' || c.urgency === s.urgencyFilter);
+    const mapPins = filteredCases.map(c => ({ id: c.id, x: c.x, y: c.y, color: urgencyMeta(c.urgency).color, pulse: c.urgency === 'critical' && c.status === 'open', select: () => this.selectPin(c.id) }));
+    const selectedPinCase = s.cases.find(c => c.id === s.selectedPinId);
+    const selectedPin = selectedPinCase ? { ...withMeta(selectedPinCase), view: () => this.openCase(selectedPinCase.id) } : null;
+
+    const speciesChips = ['All', 'Dog', 'Cat', 'Cattle'].map(sp => ({
+      label: sp, select: () => this.setSpeciesFilter(sp),
+      bg: s.speciesFilter === sp ? '#1f5d50' : '#fff', color: s.speciesFilter === sp ? '#fbf6ea' : '#17302b',
+      border: s.speciesFilter === sp ? '#1f5d50' : 'rgba(23,48,43,0.12)',
+    }));
+    const urgencyChips = [{ v: 'All', label: 'All urgency' }, { v: 'critical', label: 'Critical' }, { v: 'attention', label: 'Needs attention' }, { v: 'monitoring', label: 'Monitoring' }].map(u => ({
+      label: u.label, select: () => this.setUrgencyFilter(u.v), showDot: u.v !== 'All', dotColor: urgencyMeta(u.v).color,
+      bg: s.urgencyFilter === u.v ? '#17302b' : '#fff', color: s.urgencyFilter === u.v ? '#fbf6ea' : '#17302b',
+      border: s.urgencyFilter === u.v ? '#17302b' : 'rgba(23,48,43,0.12)',
+    }));
+
+    const activeCaseRaw = s.cases.find(c => c.id === s.activeCaseId) || {};
+    const statusOrder = ['open', 'claimed', 'in_progress', 'resolved'];
+    const curIdx = statusOrder.indexOf(activeCaseRaw.status);
+    const timeline = [
+      { key: 'open', label: t.tabReported, sub: activeCaseRaw.time },
+      { key: 'claimed', label: t.tabClaimed, sub: activeCaseRaw.status === 'open' ? null : (activeCaseRaw.claimedBy ? 'by ' + activeCaseRaw.claimedBy : null) },
+      { key: 'in_progress', label: t.markInProgress, sub: null },
+      { key: 'resolved', label: t.tabResolved, sub: null },
+    ].map((step, i) => ({
+      label: step.label, sub: step.sub, hasLine: i < 3,
+      done: i <= curIdx, dotBg: i <= curIdx ? '#1f5d50' : '#fff', dotBorder: i <= curIdx ? '#1f5d50' : 'rgba(23,48,43,0.2)',
+      lineColor: i < curIdx ? '#1f5d50' : 'rgba(23,48,43,0.15)', textColor: i <= curIdx ? '#17302b' : 'rgba(23,48,43,0.4)',
+    }));
+    const personBadge = (name) => {
+      const n = name || '?';
+      const palette = ['#1f5d50', '#c9860f', '#3a6ea5', '#8a4fae'];
+      const hue = n.charCodeAt(0) % palette.length;
+      return { initial: n[0].toUpperCase(), bg: palette[hue] };
+    };
+    const isNgoRole = s.role === 'ngo';
+    const isReporterOwnCase = s.role === 'reporter' && activeCaseRaw.reporter === 'You';
+    const activeCase = activeCaseRaw.id ? {
+      ...withMeta(activeCaseRaw), timeline,
+      canClaim: activeCaseRaw.status === 'open',
+      claimedByMe: activeCaseRaw.claimedBy === 'You' && activeCaseRaw.status !== 'resolved',
+      canAdvance: activeCaseRaw.claimedBy === 'You' && (activeCaseRaw.status === 'claimed' || activeCaseRaw.status === 'in_progress'),
+      advanceLabel: activeCaseRaw.status === 'claimed' ? t.markInProgress : t.markResolved,
+      resolved: activeCaseRaw.status === 'resolved',
+      viewNgo: isNgoRole,
+      viewReadonly: !isNgoRole && isReporterOwnCase,
+      viewDefault: !isNgoRole && !isReporterOwnCase,
+      readonlyLabel: activeCaseRaw.status === 'open' ? 'Awaiting a rescuer' : activeCaseRaw.status === 'resolved' ? t.caseResolvedLabel : ('Contacted ' + (activeCaseRaw.claimedBy || 'volunteer')),
+      assignedLabel: activeCaseRaw.claimedBy || 'Unassigned',
+      assignInitial: personBadge(activeCaseRaw.claimedBy).initial,
+      assignBadgeBg: activeCaseRaw.claimedBy ? personBadge(activeCaseRaw.claimedBy).bg : 'rgba(23,48,43,0.3)',
+      canVerify: activeCaseRaw.status === 'in_progress',
+    } : { timeline: [], tags: [] };
+
+    const isVolunteerRole = s.role === 'volunteer';
+    const myTabDefs = isVolunteerRole
+      ? [{ v: 'nearby', label: 'Nearby' }, { v: 'claimed', label: t.tabClaimed }, { v: 'resolved', label: t.tabResolved }]
+      : [{ v: 'reported', label: t.tabReported }, { v: 'claimed', label: t.tabClaimed }, { v: 'resolved', label: t.tabResolved }];
+    const myTabs = myTabDefs.map(tb => ({
+      label: tb.label, select: () => this.setMyTab(tb.v),
+      bg: s.myTab === tb.v ? '#1f5d50' : 'rgba(23,48,43,0.06)', color: s.myTab === tb.v ? '#fbf6ea' : '#17302b',
+    }));
+    const myCasesTitle = isVolunteerRole ? 'Case queue' : t.myActivity;
+    const statusMeta = { open: { label: 'Open', bg: '#fbeae5', color: '#de5b3e' }, claimed: { label: t.tabClaimed, bg: '#fbf0dc', color: '#c9860f' }, in_progress: { label: 'In progress', bg: '#e2ecf5', color: '#3a6ea5' }, resolved: { label: t.tabResolved, bg: '#e7f2ec', color: '#3f8a5e' } };
+    const myCasesFiltered = s.cases.filter(c => {
+      if (s.myTab === 'nearby') return c.status === 'open';
+      if (s.myTab === 'reported') return c.reporter === 'You';
+      if (s.myTab === 'claimed') return c.claimedBy === 'You' && c.status !== 'resolved';
+      return c.status === 'resolved';
+    });
+    const myCasesList = myCasesFiltered.map(c => ({
+      ...c, urgencyColor: urgencyMeta(c.urgency).color,
+      statusLabel: statusMeta[c.status].label, statusBg: statusMeta[c.status].bg, statusColor: statusMeta[c.status].color,
+      badgeInitial: personBadge(c.reporter).initial, badgeBg: personBadge(c.reporter).bg,
+      open: () => this.openCase(c.id),
+    }));
+    const ngoStats = {
+      open: s.cases.filter(c => c.status === 'open').length,
+      claimed: s.cases.filter(c => c.status === 'claimed' || c.status === 'in_progress').length,
+      resolved: s.cases.filter(c => c.status === 'resolved').length,
+    };
+    const ngoUrgentList = s.cases.filter(c => c.status !== 'resolved').slice().sort((a, b) => (a.urgency === 'critical' ? -1 : 1) - (b.urgency === 'critical' ? -1 : 1)).slice(0, 4).map(c => ({
+      ...withMeta(c), statusLabel: statusMeta[c.status].label, statusBg: statusMeta[c.status].bg, statusColor: statusMeta[c.status].color,
+      open: () => this.openCase(c.id),
+    }));
+    const ngoQueueList = s.cases.map(c => ({
+      ...withMeta(c), statusLabel: statusMeta[c.status].label, statusBg: statusMeta[c.status].bg, statusColor: statusMeta[c.status].color,
+      assignedLabel: c.claimedBy || 'Unassigned', actionLabel: c.claimedBy ? 'Reassign' : 'Assign',
+      open: () => this.openCase(c.id),
+      assign: (e) => { e.stopPropagation(); this.setState(st => ({ cases: st.cases.map(cc => cc.id === c.id ? { ...cc, status: cc.status === 'open' ? 'claimed' : cc.status, claimedBy: 'Kavya R.' } : cc) })); this.showToast('Assigned to Kavya R.'); },
+    }));
+
+    const activeShelterRaw = SHELTERS.find(sh => sh.id === s.activeShelterId) || {};
+    const activeShelter = { ...activeShelterRaw, openColor: activeShelterRaw.open ? '#3f8a5e' : '#c9860f' };
+    const sheltersList = SHELTERS.map(sh => ({ ...sh, initial: sh.name[0], openColor: sh.open ? '#3f8a5e' : '#c9860f', open: () => this.openShelter(sh.id) }));
+    const shelterPins = SHELTERS.map(sh => ({ x: sh.x, y: sh.y, open: () => this.openShelter(sh.id) }));
+
+    const activeAdoptRaw = ADOPTS.find(a => a.id === s.activeAdoptId) || {};
+    const adoptList = ADOPTS.map(a => ({ ...a, open: () => this.openAdopt(a.id) }));
+
+    const unreadCount = s.notifications.filter(n => n.unread).length;
+    const notifIconBg = { new: '#de5b3e', claim: '#c9860f', chat: '#1f5d50', status: '#3f8a5e' };
+    const notifList = s.notifications.map(n => ({
+      ...n, isNew: n.type === 'new', isClaim: n.type === 'claim', isChat: n.type === 'chat', isStatus: n.type === 'status',
+      iconBg: notifIconBg[n.type], bg: n.unread ? '#fff' : 'rgba(255,255,255,0.5)',
+    }));
+
+    const speciesOptions = ['Dog', 'Cat', 'Cattle'].map(sp => ({
+      label: sp, select: () => this.setSpecies(sp),
+      bg: s.report.species === sp ? '#1f5d50' : '#fff', color: s.report.species === sp ? '#fbf6ea' : '#17302b',
+      border: s.report.species === sp ? '#1f5d50' : 'rgba(23,48,43,0.15)',
+    }));
+    const tagOptions = TAG_POOL.map(tag => ({
+      label: tag, toggle: () => this.toggleTag(tag),
+      bg: s.report.tags.includes(tag) ? '#1f5d50' : '#fff', color: s.report.tags.includes(tag) ? '#fbf6ea' : '#17302b',
+      border: s.report.tags.includes(tag) ? '#1f5d50' : 'rgba(23,48,43,0.15)',
+    }));
+    const urgencyOptions = [
+      { v: 'critical', label: 'Critical', desc: 'Immediate danger — hit by vehicle, severe injury, roadblock.' },
+      { v: 'attention', label: 'Needs attention', desc: 'Visible issue but stable — wound, malnourished, sick.' },
+      { v: 'monitoring', label: 'Just monitoring', desc: 'Worth tracking, not urgent right now.' },
+    ].map(u => ({
+      ...u, select: () => this.setUrgencyDraft(u.v), dot: urgencyMeta(u.v).color,
+      bg: s.report.urgency === u.v ? urgencyMeta(u.v).bg : '#fff', border: s.report.urgency === u.v ? urgencyMeta(u.v).color : 'rgba(23,48,43,0.12)',
+    }));
+    const reportStepDots = [1, 2, 3, 4].map(n => ({ color: s.report.step >= n ? '#1f5d50' : 'rgba(23,48,43,0.12)' }));
+
+    const tabColor = (key) => s.screen === key ? '#1f5d50' : 'rgba(23,48,43,0.4)';
+    const tabPill = (key) => s.screen === key ? 'rgba(31,93,80,0.12)' : 'transparent';
+
+    const chatMessages = s.chatMessages.map(m => ({ ...m, align: m.from === 'me' ? 'flex-end' : 'flex-start', bg: m.from === 'me' ? '#1f5d50' : '#fff', color: m.from === 'me' ? '#fbf6ea' : '#17302b' }));
+
+    return {
+      isDark: isOnboarding,
+      isOnboarding, isRoleSelect: s.screen === 'roleSelect', isHome: s.screen === 'home', isReport: s.screen === 'report',
+      isCaseDetail: s.screen === 'caseDetail', isMyCases: s.screen === 'myCases', isShelters: s.screen === 'shelters',
+      isShelterDetail: s.screen === 'shelterDetail', isProfile: s.screen === 'profile', isNotifications: s.screen === 'notifications',
+      isAdopt: s.screen === 'adopt', isAdoptDetail: s.screen === 'adoptDetail', isChat: s.screen === 'chat',
+      isNgoDashboard: s.screen === 'ngoDashboard', isNgoQueue: s.screen === 'ngoQueue',
+      isReporterRole: s.role !== 'volunteer', isVolunteerRole,
+      showReporterTabBar: s.role !== 'volunteer' && s.role !== 'ngo' && ['home', 'myCases', 'shelters', 'adopt', 'profile'].includes(s.screen),
+      showVolunteerTabBar: s.role === 'volunteer' && ['home', 'myCases', 'shelters', 'profile'].includes(s.screen),
+      showNgoTabBar: s.role === 'ngo' && ['ngoDashboard', 'ngoQueue', 'shelters', 'profile'].includes(s.screen),
+      onboardSlide: (() => {
+        const key = 'slide' + (s.onboardIndex + 1);
+        const pair = t[key] || [ONBOARD[s.onboardIndex].title, ONBOARD[s.onboardIndex].body];
+        return { title: pair[0], body: pair[1] };
+      })(),
+      onboardDots: ONBOARD.map((_, i) => ({ size: i === s.onboardIndex ? 22 : 8, color: i === s.onboardIndex ? '#fbf6ea' : 'rgba(251,246,234,0.35)' })),
+      onboardButtonLabel: s.onboardIndex === ONBOARD.length - 1 ? t.getStarted : t.next,
+      skipOnboarding: this.skipOnboarding, onboardNext: this.onboardNext,
+      selectReporterRole: reporterM.select, reporterBorder: reporterM.border, reporterBg: reporterM.bg, reporterIconBg: reporterM.iconBg, reporterDotBg: reporterM.dotBg,
+      selectVolunteerRole: volunteerM.select, volunteerBorder: volunteerM.border, volunteerBg: volunteerM.bg, volunteerIconBg: volunteerM.iconBg, volunteerDotBg: volunteerM.dotBg,
+      selectNgoRole: ngoM.select, ngoBorder: ngoM.border, ngoBg: ngoM.bg, ngoIconBg: ngoM.iconBg, ngoDotBg: ngoM.dotBg,
+      confirmRole: this.confirmRole, roleContinueBg: s.role ? '#1f5d50' : 'rgba(23,48,43,0.2)',
+      roleLabel: roleLabels[s.role] || t.reporterLabel,
+      hasUnread: unreadCount > 0, goNotifications: this.goNotifications, goHome: this.goHome,
+      speciesChips, urgencyChips, mapPins, hasSelectedPin: !!selectedPin, selectedPin: selectedPin || {},
+      startReport: this.startReport, fabBottom: 18,
+      isReportStep1: s.report.step === 1, isReportStep2: s.report.step === 2, isReportStep3: s.report.step === 3, isReportStep4: s.report.step === 4, isReportStep5: s.report.step === 5,
+      reportBack: this.reportBack, reportStepDots,
+      report: { ...s.report, cameraIdle: !s.report.cameraActive, thumbBg: s.report.photoUrl ? `url(${s.report.photoUrl})` : 'repeating-linear-gradient(135deg,rgba(23,48,43,0.10) 0 6px, rgba(23,48,43,0.04) 6px 12px)' },
+      takePhoto: this.takePhoto, galleryInputRef: this.galleryInputRef, triggerGalleryPick: this.triggerGalleryPick, handleFileChosen: this.handleFileChosen,
+      captureChoiceOpen: s.captureChoiceOpen, openCaptureChoice: this.openCaptureChoice, closeCaptureChoice: this.closeCaptureChoice,
+      chooseTakePhoto: this.chooseTakePhoto, chooseGallery: this.chooseGallery, stopPropagation: this.stopPropagation,
+      shutterAction: this.shutterAction, moveLocationPin: this.moveLocationPin, startPinDrag: this.startPinDrag,
+      locationX: s.report.locationX, locationY: s.report.locationY,
+      resolvedAddress: NEARBY_ADDRESSES.reduce((best, p) => {
+        const d = Math.hypot(p.x - s.report.locationX, p.y - s.report.locationY);
+        return (!best || d < best.d) ? { d, addr: p.addr } : best;
+      }, null).addr,
+      shutterBg: s.report.cameraActive ? '#fff' : '#1f5d50',
+      shutterShadow: s.report.cameraActive ? '0 0 0 2px #de5b3e' : '0 0 0 2px #1f5d50',
+      speciesOptions, tagOptions, reportNext: this.reportNext, reportStep2ButtonBg: '#1f5d50',
+      urgencyOptions, setNote: this.setNote, submitReport: this.submitReport, submitButtonBg: s.report.urgency ? '#1f5d50' : 'rgba(23,48,43,0.25)',
+      newCaseId: s.newCaseId, viewNewCase: this.viewNewCase, backToHomeFromReport: this.backToHomeFromReport,
+      activeCase, closeCaseDetail: this.closeCaseDetail, claimActiveCase: this.claimActiveCase, advanceActiveCase: this.advanceActiveCase, openChat: this.openChat,
+      myTabs, myCasesList, myCasesEmpty: myCasesList.length === 0,
+      shelterListBg: s.shelterView === 'list' ? '#fff' : 'transparent', shelterMapBg: s.shelterView === 'map' ? '#fff' : 'transparent',
+      setShelterView: this.setShelterView, shelterViewIsList: s.shelterView === 'list', shelterViewIsMap: s.shelterView === 'map',
+      sheltersList, shelterPins, activeShelter, closeShelterDetail: this.closeShelterDetail,
+      impactStats: [{ value: '7', label: t.statCases }, { value: '4', label: t.statRescues }, { value: '12', label: t.statResolved }],
+      profileName: s.profileName, profileInitial: s.profileName.trim()[0] || 'R',
+      editProfileOpen: s.editProfileOpen, editNameDraft: s.editNameDraft, openEditProfile: this.openEditProfile, closeEditProfile: this.closeEditProfile, setProfileName: this.setProfileName, saveProfile: this.saveProfile,
+      toggleNotifPrefs: this.toggleNotifPrefs, notifPrefsLabel: s.notifPrefsOn ? 'On' : 'Off',
+      setLanguage: this.setLanguage, languageCode: s.languageCode,
+      inviteFriends: this.inviteFriends, logOut: this.logOut, t,
+      notifList,
+      adoptList, activeAdopt: activeAdoptRaw, closeAdoptDetail: this.closeAdoptDetail, expressInterest: this.expressInterest,
+      chatMessages, chatInput: s.chatInput, setChatInput: this.setChatInput, sendChat: this.sendChat, closeChat: this.closeChat,
+      goMyCases: () => this.go('myCases'), goAdopt: () => this.go('adopt'), goShelters: () => this.go('shelters'), goProfile: () => this.go('profile'),
+      goNgoDashboard: this.goNgoDashboard, goNgoQueue: this.goNgoQueue, fabAction: this.fabAction,
+      tabHomeColor: tabColor('home'), tabCasesColor: tabColor('myCases'), tabAdoptColor: tabColor('adopt'), tabSheltersColor: tabColor('shelters'), tabProfileColor: tabColor('profile'),
+      tabHomePill: tabPill('home'), tabCasesPill: tabPill('myCases'), tabAdoptPill: tabPill('adopt'), tabSheltersPill: tabPill('shelters'), tabProfilePill: tabPill('profile'),
+      tabDashboardColor: tabColor('ngoDashboard'), tabQueueColor: tabColor('ngoQueue'), tabDashboardPill: tabPill('ngoDashboard'), tabQueuePill: tabPill('ngoQueue'),
+      myCasesTitle, ngoStats, ngoUrgentList, ngoQueueList,
+      ngoNoteDraft: s.ngoNoteDraft, setNgoNote: this.setNgoNote, reassignActiveCase: this.reassignActiveCase, verifyActiveCase: this.verifyActiveCase,
+      toast: s.toast,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
