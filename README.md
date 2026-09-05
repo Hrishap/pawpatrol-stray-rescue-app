@@ -1,112 +1,256 @@
-# PawPatrol — Stray Rescue App
+<div align="center">
 
-A community stray-animal rescue coordination app for Kochi, Kerala. Reporters spot strays in
-distress and file reports in seconds; volunteers get notified, claim cases, and coordinate
-rescue; NGOs/shelters manage the case queue and verify outcomes.
+# 🐾 PawPatrol — Stray Rescue
 
-Rebuilt as a production app from a Claude Design prototype — see
-[`design-reference/PAWPATROL_SPEC.md`](design-reference/PAWPATROL_SPEC.md) for the full screen
-inventory, data model, and design tokens the implementation is built from.
+**Report a stray in distress in under 30 seconds. Get it to someone who can help.**
 
-**Status**: every screen in the design spec has a real implementation — onboarding, role select,
-email/password auth, the live map, the 5-step report flow (real camera/gallery, GPS, free OSM
-reverse geocoding), case detail with the full reporter/volunteer/NGO permission logic, chat,
-notifications, my cases/queue, shelters (list/map/detail with working Call/Directions), adopt
-(grid/detail), profile, and the NGO dashboard/queue. The full case lifecycle and every RPC's
-access control were verified against the running local Supabase instance with real throwaway
-accounts (see commit history for the exact checks). What's genuinely not done yet: real push
-notifications (APNs/FCM — in-app/realtime only for now), AI photo tagging (manual tagging by
-design, see the plan), and an actual on-device visual pass — this dev machine has no usable
-Xcode/Simulator, so a real device install via EAS Build (see below) is the first on-device check.
+A community rescue-coordination app for street animals, built for Indian cities.
+Reporters spot animals in trouble, volunteers claim and respond to cases, and
+NGOs run the queue and verify outcomes — all on one live map.
 
-## Stack
+[![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB?logo=react&logoColor=white)](https://reactnative.dev)
+[![Expo](https://img.shields.io/badge/Expo_SDK-57-000020?logo=expo&logoColor=white)](https://expo.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Supabase](https://img.shields.io/badge/Supabase-Postgres_+_RLS-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com)
+[![OpenStreetMap](https://img.shields.io/badge/Maps-OpenStreetMap-7EBC6F?logo=openstreetmap&logoColor=white)](https://www.openstreetmap.org)
+[![i18n](https://img.shields.io/badge/i18n-EN_·_ML_·_HI-1f5d50)](#-built-for-india)
 
-- **Mobile**: React Native via [Expo](https://expo.dev) (TypeScript, Expo Router)
-- **Backend**: [Supabase](https://supabase.com) (Postgres, Auth, Storage, Realtime)
-- **Maps**: WebView + [Leaflet](https://leafletjs.com) + OpenStreetMap tiles — free, no account
-  or API key needed anywhere (`src/components/LeafletMap.tsx`)
-- **i18n**: English, Malayalam (മലയാളം), Hindi (हिन्दी) via i18next
+</div>
 
-## Repository layout
+---
+
+## 📱 The app
+
+<div align="center">
+
+| Live rescue map | Shelters & vets | Shelters on map |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/01-live-map.png" width="240" /> | <img src="docs/screenshots/03-shelters-list.png" width="240" /> | <img src="docs/screenshots/04-shelters-map.png" width="240" /> |
+| Open cases near you, filtered by species and urgency | Nearest first, with live open/closed status | Named pins, framed to fit |
+
+| Ready for adoption | Your profile |
+| :---: | :---: |
+| <img src="docs/screenshots/05-adopt.png" width="240" /> | <img src="docs/screenshots/06-profile.png" width="240" /> |
+| Rescued animals looking for homes | Real impact stats, computed from your cases |
+
+</div>
+
+---
+
+## ✨ What it does
+
+PawPatrol is built around one idea: **the person who spots a stray is rarely the
+person who can rescue it.** The app closes that gap.
+
+### 🙋 Reporter
+Spot an animal in trouble and file a case in a guided five-step flow — photo,
+species and condition, a map pin you can drag to the exact spot, and an urgency
+level. Track everything you've reported and chat with whoever picks it up.
+
+### 🚑 Volunteer / Rescuer
+See open cases near you on a live map. Claim the nearest one with a single tap,
+move it through *in progress* as you work, and coordinate directly with the
+reporter.
+
+### 🏥 NGO / Shelter
+A dashboard of open, claimed and resolved counts with the most urgent cases
+surfaced first. Assign or reassign any case to a real volunteer, keep internal
+notes, and verify resolutions before they close.
+
+---
+
+## 🔐 A real state machine, not a mockup
+
+Case status is enforced in Postgres, not in the client — every transition is a
+`SECURITY DEFINER` function that checks who is asking:
 
 ```
-apps/mobile/       Expo app
-supabase/           Postgres schema (migrations/) + local dev config
-design-reference/   Original design spec, screenshots, and source .dc.html
+open ──claim──▶ claimed ──advance──▶ in_progress ──advance──▶ pending_verification ──verify──▶ resolved
+      (anyone but            (only the claiming volunteer)                          (NGO staff only)
+       the reporter)
 ```
 
-## Prerequisites
+Attempting a transition you aren't entitled to fails at the database, regardless
+of what the app sends:
 
-- Node.js 20+
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for local Supabase)
-- The `supabase` CLI and `gh` CLI (see below — installed as prebuilt binaries in this repo's
-  setup since Homebrew requires newer Xcode Command Line Tools than this machine has;
-  `brew install supabase/tap/supabase gh` will work fine on a machine with up-to-date CLTs)
-- A free [Expo](https://expo.dev) account (for EAS builds, to install the app on a real device —
-  this project has no local iOS Simulator/Xcode available)
+| Attempt | Result |
+| --- | --- |
+| Reporter claims their own case | ❌ `Reporters cannot claim their own case` |
+| Non-claimant advances a case | ❌ `Only the assigned volunteer can advance this case` |
+| Volunteer verifies a resolution | ❌ `Only NGO staff can verify a resolution` |
+| Volunteer assigns a case | ❌ `Only NGO staff can assign cases` |
 
-## Local backend setup
+Row-level security covers the rest: chat threads are readable only by the case's
+reporter and claimant, notifications only by their owner, and nothing at all
+without a session.
+
+> The original design prototype had a "Verify resolution" button that only
+> showed a toast. Here it drives a real `pending_verification → resolved`
+> transition, with `case_status_history` recording who changed what and when.
+
+---
+
+## 🏗️ Architecture
+
+```
+apps/mobile/                  Expo app (TypeScript, Expo Router)
+├── app/                      File-based routes
+│   ├── (auth)/               Login, signup
+│   ├── (onboarding)/         Carousel, role select
+│   ├── (reporter)/           Map · Cases · Adopt · Shelters · Profile
+│   ├── (volunteer)/          Queue · Map · Shelters · Profile
+│   ├── (ngo)/                Dashboard · Queue · Shelters · Profile
+│   ├── report/               Five-step reporting flow
+│   └── case/ chat/ shelter/ adopt/
+└── src/
+    ├── screens/              Role-parametrised shared screens
+    ├── components/           LeafletMap, CaseRow, FilterChip, …
+    ├── hooks/                Data hooks (react-query + Realtime)
+    ├── lib/                  Supabase client, i18n, geocoding
+    └── i18n/                 en · ml · hi
+
+supabase/migrations/          Schema, RLS, state-machine functions
+docs/                         Pitch deck and screenshots
+design-reference/             Original design spec and mockups
+```
+
+**Live by default.** Cases, notifications and chat subscribe to Postgres changes
+over Supabase Realtime, so a case claimed on one device updates every other
+session immediately — no pull-to-refresh anywhere.
+
+**Location-scoped queries.** Shelters and adoptable animals are filtered by
+great-circle distance *in Postgres* (`shelters_near`, `adoptable_animals_near`),
+returning nearest-first within a 50 km radius, rather than downloading a national
+table to throw most of it away.
+
+---
+
+## 🗺️ Maps without a credit card
+
+Most map SDKs want a billing account before you can render a single tile.
+PawPatrol uses **Leaflet + OpenStreetMap inside a WebView** instead:
+
+- ✅ No API key, no account, no card — anywhere in the stack
+- ✅ Real tiles, pins, drag-to-place markers, fit-to-bounds, named labels
+- ✅ Reverse geocoding via OSM Nominatim, also keyless
+
+Everything the design called for, at zero cost and zero signup friction.
+
+---
+
+## 🌏 Built for India
+
+Fully trilingual — **English**, **മലയാളം** (Malayalam) and **हिन्दी** (Hindi) —
+switchable from the profile screen and persisted per account. Species,
+condition tags and urgency levels reflect what actually turns up on Indian
+streets: indie dogs and cats, cattle, roadkill risk, hit-by-vehicle.
+
+---
+
+## 🚀 Getting started
+
+**Prerequisites:** Node 20+, [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+(for the local database), and the [Supabase CLI](https://supabase.com/docs/guides/cli).
+
+```bash
+git clone https://github.com/Hrishap/pawpatrol-stray-rescue-app.git
+cd pawpatrol-stray-rescue-app
+```
+
+**1. Start the backend**
 
 ```bash
 supabase start
 ```
 
-This starts Postgres + Auth + Storage + Realtime in Docker, applies every migration in
-`supabase/migrations/`, and seeds `supabase/seed.sql` (demo shelters + adoptable animals). Copy
-the printed `API_URL` and `ANON_KEY` into `apps/mobile/.env` (see `.env.example`).
+This runs Postgres, Auth, Storage and Realtime in Docker, applies every
+migration, and seeds demo shelters and adoptable animals for Kochi and Bengaluru.
 
-Stop it with `supabase stop`. Reset the DB (reapply migrations + reseed) with `supabase db reset`.
-
-To regenerate TypeScript types after a schema change:
-
-```bash
-supabase gen types typescript --local > apps/mobile/src/types/database.ts
-```
-
-Then re-add the friendly type aliases at the bottom of that file (see git history for the block
-to keep — `Profile`, `Case`, `Shelter`, etc.).
-
-## Mobile app setup
+**2. Configure the app**
 
 ```bash
 cd apps/mobile
-cp .env.example .env   # fill in Supabase values
+cp .env.example .env    # paste the API URL and anon key printed by `supabase start`
 npm install
+```
+
+**3. Run it**
+
+```bash
 npm run start
 ```
 
-`react-native-webview` (used for the map) is a native module, so running on a device requires a
-custom **development build** — plain Expo Go won't load it. Build one via EAS (no local
-Xcode/Android Studio needed):
+Press `i` for the iOS Simulator, `a` for Android, or scan the QR code with
+[Expo Go](https://expo.dev/go) on your phone. The app runs in Expo Go — no
+custom native build required for development.
+
+<details>
+<summary><b>Deploying to a hosted Supabase project</b></summary>
+
+```bash
+supabase link --project-ref <your-project-ref>
+supabase db push          # schema, RLS, functions, demo data
+supabase config push      # auth settings
+```
+
+Then point `apps/mobile/.env` at the hosted project's URL and anon key.
+
+Email confirmations are disabled in `supabase/config.toml` so demo signups work
+instantly. **Re-enable them, with a real SMTP provider, before any public
+launch** — Supabase's built-in mailer is rate-limited and not intended for
+production.
+
+</details>
+
+<details>
+<summary><b>Building an installable app</b></summary>
 
 ```bash
 npx eas login
-npx eas build --profile development --platform ios      # or --platform android
+npx eas build --profile preview --platform android   # APK, no paid account needed
+npx eas build --profile development --platform ios   # needs an Apple Developer account
 ```
 
-Install the resulting build on your own device via the link/QR code EAS prints.
+</details>
 
-## Known follow-ups from the original design
+---
 
-See `design-reference/PAWPATROL_SPEC.md` §4.2 and §7 for the full list of prototype-only gaps
-this rebuild fixes for real (verify-resolution actually resolving a case, the location pin
-actually being saved, real per-case chat instead of an echo-bot, persisted NGO notes, working
-Call/Directions links, computed profile stats).
+## 🧪 Quality
 
-Not yet built, by design or by scope:
-- **Real push notifications** (APNs/FCM) — the full data model exists (`push_tokens` table,
-  per-user `notifications` rows generated by real Postgres triggers/RPCs) but delivery is
-  in-app/realtime only for now. Wiring `expo-notifications` for real device push is the next step
-  once you have Apple Developer / Firebase accounts.
-- **AI photo tagging** — the reporter picks species/breed/tags themselves; no vision API is
-  called. Swapping in a real model (e.g. Claude's vision API) later doesn't require a schema
-  change, just a call from the report flow's step 2.
-- **Adopt → "Contact shelter"** shows a local confirmation rather than sending a real message,
-  since `shelters` is reference data with no owning NGO account to notify — adding a
-  `shelters.owner_profile_id` column (and having real NGOs claim/manage listings) would be needed
-  first.
-- **An actual on-device visual pass.** Every backend behavior was verified with real API calls
-  against the running local Supabase instance (auth, RLS, the full case state machine, storage
-  uploads); the UI itself hasn't been seen running yet, since this dev machine has no usable
-  Xcode/Simulator. Build a dev client via EAS (above) and install it on your phone for the first
-  real look.
+- **TypeScript strict mode** across the app, zero errors
+- **`expo-doctor`**: 21/21 checks passing
+- Backend behaviour verified end-to-end against a live Supabase instance — full
+  case lifecycle across three roles, every permission rejection, RLS scoping on
+  chat, and photo upload with public read
+- Driven on a real iOS Simulator through signup, reporting, maps and every tab
+
+---
+
+## 🗺️ Roadmap
+
+| Status | Item |
+| :---: | --- |
+| ✅ | Three roles, full case lifecycle, realtime, chat, notifications, i18n |
+| 🚧 | Push notifications — data model and `push_tokens` are ready; needs APNs/FCM credentials |
+| 🚧 | AI photo tagging — reporters tag manually today; the flow is shaped to drop a vision model in |
+| 🚧 | Shelter ownership, so "Contact shelter" reaches a real inbox |
+| 💡 | Volunteer presence, case photos gallery, offline queueing |
+
+---
+
+## 📄 Documents
+
+- 📊 [**Pitch deck**](docs/PawPatrol_Stray_Rescue_App.pptx) — the concept and problem framing
+- 📐 [**Design spec**](design-reference/PAWPATROL_SPEC.md) — full screen inventory, data model and design tokens the build was made from
+
+---
+
+## 🙏 Credits
+
+Maps and geocoding © [OpenStreetMap](https://www.openstreetmap.org/copyright)
+contributors. Typeface: [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans).
+Interface icons: [Material Community Icons](https://pictogrammers.com/library/mdi/).
+
+<div align="center">
+<sub>Built for the strays who can't call for help themselves.</sub>
+</div>

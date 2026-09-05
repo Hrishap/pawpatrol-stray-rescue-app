@@ -59,7 +59,7 @@ export function ProfileScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
       <View style={styles.avatar}>
         <Text style={styles.avatarLabel}>{profile.full_name.charAt(0)}</Text>
       </View>
@@ -160,6 +160,7 @@ function SettingRow({
 }
 
 const styles = StyleSheet.create({
+  scroll: { backgroundColor: colors.background },
   container: { backgroundColor: colors.background, paddingTop: 64, paddingHorizontal: spacing.xl, paddingBottom: 40, alignItems: 'center' },
   avatar: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', marginBottom: 12 },
   avatarLabel: { fontFamily: fonts.extrabold, fontSize: 26, color: colors.background },
