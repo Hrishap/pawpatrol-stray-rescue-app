@@ -17,6 +17,8 @@ interface LeafletMapProps {
   /** A single draggable/tappable marker, for location-picking screens. */
   draggableMarker?: { lat: number; lng: number; color?: string };
   interactive?: boolean;
+  /** Frame the map around all pins instead of holding `center`. */
+  fitToPins?: boolean;
   onPinPress?: (id: string) => void;
   onMapPress?: (coords: { lat: number; lng: number }) => void;
   onDraggableMarkerMove?: (coords: { lat: number; lng: number }) => void;
@@ -33,6 +35,7 @@ export function LeafletMap({
   zoom = 14,
   draggableMarker,
   interactive = true,
+  fitToPins = false,
   onPinPress,
   onMapPress,
   onDraggableMarkerMove,
@@ -59,9 +62,9 @@ export function LeafletMap({
   const markerKey = JSON.stringify(draggableMarker ?? null);
   React.useEffect(() => {
     webviewRef.current?.injectJavaScript(
-      `window.ppSetPins && window.ppSetPins(${pinsKey}); true;`,
+      `window.ppSetPins && window.ppSetPins(${pinsKey}, ${fitToPins}); true;`,
     );
-  }, [pinsKey]);
+  }, [pinsKey, fitToPins]);
   React.useEffect(() => {
     webviewRef.current?.injectJavaScript(
       `window.ppSetDraggableMarker && window.ppSetDraggableMarker(${markerKey}); true;`,
@@ -85,7 +88,7 @@ export function LeafletMap({
       }}
       onLoadEnd={() => {
         webviewRef.current?.injectJavaScript(
-          `window.ppSetPins && window.ppSetPins(${pinsKey}); window.ppSetDraggableMarker && window.ppSetDraggableMarker(${markerKey}); true;`,
+          `window.ppSetPins && window.ppSetPins(${pinsKey}, ${fitToPins}); window.ppSetDraggableMarker && window.ppSetDraggableMarker(${markerKey}); true;`,
         );
       }}
     />
@@ -142,7 +145,7 @@ function buildHtml({
   };
 
   var pinLayer = L.layerGroup().addTo(map);
-  window.ppSetPins = function (pins) {
+  window.ppSetPins = function (pins, fit) {
     pinLayer.clearLayers();
     (pins || []).forEach(function (p) {
       var html = '<div style="position:relative;">' +
@@ -152,6 +155,12 @@ function buildHtml({
       var marker = L.marker([p.lat, p.lng], { icon: icon }).addTo(pinLayer);
       marker.on('click', function () { post({ type: 'pinPress', id: p.id }); });
     });
+    // Without this the map sits on the device location, so pins in another
+    // city are simply off-screen and the map looks empty.
+    if (fit && pins && pins.length) {
+      var bounds = L.latLngBounds(pins.map(function (p) { return [p.lat, p.lng]; }));
+      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+    }
   };
 
   var draggableMarker = null;

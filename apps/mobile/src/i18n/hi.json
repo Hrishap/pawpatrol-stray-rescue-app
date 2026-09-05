@@ -91,5 +91,7 @@
   "locatingLabel": "स्थान पता कर रहे हैं…",
   "cameraUnavailableTitle": "कैमरा उपलब्ध नहीं",
   "cameraUnavailableBody": "इस डिवाइस पर कैमरा नहीं खुल सका। इसके बजाय गैलरी से फोटो अपलोड करें।",
-  "galleryPermissionBody": "रिपोर्ट में फोटो जोड़ने के लिए फोटो एक्सेस चाहिए।"
+  "galleryPermissionBody": "रिपोर्ट में फोटो जोड़ने के लिए फोटो एक्सेस चाहिए।",
+  "noSheltersNearby": "आपके 50 कि.मी. के दायरे में कोई आश्रय नहीं है।",
+  "noAdoptablesNearby": "आपके आस-पास गोद लेने के लिए कोई जानवर नहीं है।"
 }

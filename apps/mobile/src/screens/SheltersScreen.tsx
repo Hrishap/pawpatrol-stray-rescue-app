@@ -15,7 +15,8 @@ type ViewMode = 'list' | 'map';
 export function SheltersScreen() {
   const { t } = useTranslation();
   const { coords } = useDeviceLocation();
-  const { data: shelters = [] } = useShelters();
+  // Postgres does the radius filter and nearest-first ordering.
+  const { data: shelters = [] } = useShelters(coords);
   const [view, setView] = useState<ViewMode>('list');
 
   const pins: MapPin[] = shelters.map((s) => ({ id: s.id, lat: s.lat, lng: s.lng, color: '#1f5d50' }));
@@ -49,6 +50,7 @@ export function SheltersScreen() {
           data={shelters}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
+          ListEmptyComponent={<Text style={styles.empty}>{t('noSheltersNearby')}</Text>}
           renderItem={({ item }) => (
             <ShelterRow item={item} distanceKm={haversineKm(coords, item)} />
           )}
@@ -59,6 +61,7 @@ export function SheltersScreen() {
             center={coords}
             pins={pins}
             zoom={12}
+            fitToPins
             onPinPress={(id) => router.push(`/shelter/${id}`)}
           />
         </View>
@@ -103,6 +106,13 @@ const styles = StyleSheet.create({
   toggleLabel: { fontFamily: fonts.semibold, fontSize: 13, color: colors.textMuted55 },
   toggleLabelActive: { color: colors.textPrimary },
   list: { paddingHorizontal: spacing.xl, paddingBottom: 100, gap: 12 },
+  empty: {
+    fontFamily: fonts.regular,
+    fontSize: fontSize.body,
+    color: colors.textMuted55,
+    textAlign: 'center',
+    marginTop: 40,
+  },
   mapWrap: { flex: 1, marginHorizontal: 16, marginBottom: 16, borderRadius: 20, overflow: 'hidden' },
   row: { flexDirection: 'row', gap: 12, backgroundColor: colors.white, borderRadius: 18, padding: 14 },
   avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },

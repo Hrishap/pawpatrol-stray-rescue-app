@@ -12,8 +12,8 @@ import { colors, fonts, fontSize, spacing } from '@/theme';
 export function AdoptGridScreen() {
   const { t } = useTranslation();
   const { coords } = useDeviceLocation();
-  const { data: animals = [] } = useAdoptableAnimals();
-  const { data: shelters = [] } = useShelters();
+  const { data: animals = [] } = useAdoptableAnimals(coords);
+  const { data: shelters = [] } = useShelters(coords);
 
   return (
     <View style={styles.container}>
@@ -26,6 +26,7 @@ export function AdoptGridScreen() {
         numColumns={2}
         columnWrapperStyle={{ gap: 12 }}
         contentContainerStyle={styles.list}
+        ListEmptyComponent={<Text style={styles.empty}>{t('noAdoptablesNearby')}</Text>}
         renderItem={({ item }) => {
           const shelter = shelters.find((s) => s.id === item.shelter_id);
           const distance = shelter ? formatDistance(haversineKm(coords, shelter)) : '';
@@ -57,6 +58,13 @@ const styles = StyleSheet.create({
   subtitle: { fontFamily: fonts.regular, fontSize: fontSize.body, color: colors.textMuted60, paddingHorizontal: spacing.xl, marginBottom: 14 },
   list: { paddingHorizontal: spacing.xl, paddingBottom: 100, gap: 12 },
   card: { flex: 1, backgroundColor: colors.white, borderRadius: 18, padding: 10 },
+  empty: {
+    fontFamily: fonts.regular,
+    fontSize: fontSize.body,
+    color: colors.textMuted55,
+    textAlign: 'center',
+    marginTop: 40,
+  },
   photo: { height: 110, borderRadius: 14, backgroundColor: colors.monitoringBg, marginBottom: 8 },
   photoFallback: { alignItems: 'center', justifyContent: 'center' },
   name: { fontFamily: fonts.bold, fontSize: 14, color: colors.textPrimary },
