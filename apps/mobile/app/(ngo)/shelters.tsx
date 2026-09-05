@@ -1,8 +1,5 @@
-import { useTranslation } from 'react-i18next';
-
-import { ComingSoon } from '@/components/ComingSoon';
+import { SheltersScreen } from '@/screens/SheltersScreen';
 
 export default function NgoShelters() {
-  const { t } = useTranslation();
-  return <ComingSoon title={`${t('sheltersVets')} — lands in M4`} />;
+  return <SheltersScreen />;
 }
