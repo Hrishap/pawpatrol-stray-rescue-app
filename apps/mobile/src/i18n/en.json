@@ -150,6 +150,7 @@
 
   "loading": "Loading…",
   "somethingWentWrong": "Something went wrong. Please try again.",
+  "cannotReachServer": "Can't reach the server",
   "retry": "Retry",
   "permissionNeededTitle": "Permission needed",
   "cameraPermissionBody": "PawPatrol needs camera access to let you photograph a case.",

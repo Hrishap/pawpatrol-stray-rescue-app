@@ -1,8 +1,10 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { SPECIES_ICON } from '@/components/CaseRow';
 import { FilterChip } from '@/components/FilterChip';
 import { LeafletMap, type MapPin } from '@/components/LeafletMap';
 import { useAuth } from '@/hooks/useAuth';
@@ -143,7 +145,13 @@ export function MapScreen({ variant }: MapScreenProps) {
 
         {selectedCase && (
           <View style={styles.popup}>
-            <View style={styles.popupThumb} />
+            <View style={styles.popupThumb}>
+              <MaterialCommunityIcons
+                name={SPECIES_ICON[selectedCase.species]}
+                size={26}
+                color={colors.brand}
+              />
+            </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.popupTitle}>
                 {selectedCase.species} · {t(URGENCY_LABEL_KEY[selectedCase.urgency])}
@@ -250,7 +258,9 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 12,
-    backgroundColor: colors.hairline10,
+    backgroundColor: colors.monitoringBg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   popupTitle: { fontFamily: fonts.bold, fontSize: 13, color: colors.textPrimary },
   popupMeta: { fontFamily: fonts.regular, fontSize: 12, color: colors.textMuted55, marginTop: 2 },

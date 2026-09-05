@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -6,10 +7,12 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { UserRole } from '@/types/database';
 import { colors, fonts, fontSize, spacing } from '@/theme';
 
-const ROLES: { id: UserRole; labelKey: string; descKey: string }[] = [
-  { id: 'reporter', labelKey: 'reporterLabel', descKey: 'reporterDesc' },
-  { id: 'volunteer', labelKey: 'volunteerLabel', descKey: 'volunteerDesc' },
-  { id: 'ngo', labelKey: 'ngoLabel', descKey: 'ngoDesc' },
+type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
+
+const ROLES: { id: UserRole; labelKey: string; descKey: string; icon: IconName }[] = [
+  { id: 'reporter', labelKey: 'reporterLabel', descKey: 'reporterDesc', icon: 'camera-outline' },
+  { id: 'volunteer', labelKey: 'volunteerLabel', descKey: 'volunteerDesc', icon: 'hand-heart' },
+  { id: 'ngo', labelKey: 'ngoLabel', descKey: 'ngoDesc', icon: 'home-heart' },
 ];
 
 export default function RoleSelectScreen() {
@@ -35,7 +38,13 @@ export default function RoleSelectScreen() {
               onPress={() => setRole(r.id)}
               style={[styles.card, selected && styles.cardSelected]}
             >
-              <View style={[styles.iconTile, selected && styles.iconTileSelected]} />
+              <View style={[styles.iconTile, selected && styles.iconTileSelected]}>
+                <MaterialCommunityIcons
+                  name={r.icon}
+                  size={24}
+                  color={selected ? colors.background : colors.brand}
+                />
+              </View>
               <View style={styles.cardText}>
                 <Text style={styles.cardLabel}>{t(r.labelKey)}</Text>
                 <Text style={styles.cardDesc}>{t(r.descKey)}</Text>
@@ -99,7 +108,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 12,
-    backgroundColor: colors.hairline15,
+    backgroundColor: colors.monitoringBg,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   iconTileSelected: {
     backgroundColor: colors.brand,

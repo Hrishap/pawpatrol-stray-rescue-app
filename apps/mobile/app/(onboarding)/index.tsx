@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -6,6 +7,16 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, fonts, fontSize, spacing } from '@/theme';
 
 const SLIDE_COUNT = 3;
+
+type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
+
+// One illustration per slide: the animals we cover, then the responders they
+// reach, then the city-wide picture those reports build up.
+const SLIDE_ICONS: IconName[][] = [
+  ['dog', 'cat', 'cow'],
+  ['hand-heart'],
+  ['map-marker-radius'],
+];
 
 export default function OnboardingScreen() {
   const { t } = useTranslation();
@@ -34,6 +45,16 @@ export default function OnboardingScreen() {
         <View style={styles.illustration}>
           <View style={[styles.blob, styles.blobA]} />
           <View style={[styles.blob, styles.blobB]} />
+          <View style={styles.illustrationIcons}>
+            {SLIDE_ICONS[index].map((icon) => (
+              <MaterialCommunityIcons
+                key={icon}
+                name={icon}
+                size={SLIDE_ICONS[index].length > 1 ? 56 : 88}
+                color={colors.background}
+              />
+            ))}
+          </View>
         </View>
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.body}>{body}</Text>
@@ -90,6 +111,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(251,246,234,0.22)',
     marginBottom: 36,
+  },
+  illustrationIcons: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 14,
   },
   blob: {
     position: 'absolute',

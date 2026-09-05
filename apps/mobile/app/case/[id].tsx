@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
@@ -5,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { BottomSheet } from '@/components/BottomSheet';
+import { SPECIES_ICON } from '@/components/CaseRow';
 import { Button } from '@/components/Button';
 import { LeafletMap } from '@/components/LeafletMap';
 import { Loading } from '@/components/Loading';
@@ -108,7 +110,13 @@ export default function CaseDetailScreen() {
           {activeCase.photo_url ? (
             <Image source={{ uri: activeCase.photo_url }} style={StyleSheet.absoluteFill} contentFit="cover" />
           ) : (
-            <View style={[StyleSheet.absoluteFill, styles.photoPlaceholder]} />
+            <View style={[StyleSheet.absoluteFill, styles.photoPlaceholder]}>
+              <MaterialCommunityIcons
+                name={SPECIES_ICON[activeCase.species]}
+                size={72}
+                color={colors.hairline15}
+              />
+            </View>
           )}
           <View style={styles.photoTopRow}>
             <Pressable onPress={() => router.back()} style={styles.iconButton}>
@@ -300,7 +308,7 @@ function cap(s: string) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   photoHeader: { height: 190, backgroundColor: colors.hairline12 },
-  photoPlaceholder: { backgroundColor: colors.hairline12 },
+  photoPlaceholder: { backgroundColor: colors.mapCanvas, alignItems: 'center', justifyContent: 'center' },
   photoTopRow: { position: 'absolute', top: 56, left: 16, right: 16, flexDirection: 'row', justifyContent: 'space-between' },
   iconButton: { width: 36, height: 36, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.85)', alignItems: 'center', justifyContent: 'center' },
   backChevron: { fontSize: 20, color: colors.textPrimary, marginTop: -2 },

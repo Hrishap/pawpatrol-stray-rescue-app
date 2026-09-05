@@ -16,6 +16,21 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// Requests are given a hard timeout: on a phone talking to a dev machine over
+// LAN (or a flaky mobile network), a hung socket would otherwise leave the app
+// waiting forever with no feedback.
+const REQUEST_TIMEOUT_MS = 15_000;
+
+const fetchWithTimeout: typeof fetch = async (input, init) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     storage: AsyncStorage,
@@ -23,4 +38,5 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: false,
   },
+  global: { fetch: fetchWithTimeout },
 });

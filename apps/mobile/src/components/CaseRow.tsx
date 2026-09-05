@@ -1,8 +1,15 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, fonts, personBadgeColor, statusColor, urgencyColor } from '@/theme';
-import type { Case, CaseStatus } from '@/types/database';
+import type { Case, CaseSpecies, CaseStatus } from '@/types/database';
+
+export const SPECIES_ICON: Record<CaseSpecies, keyof typeof MaterialCommunityIcons.glyphMap> = {
+  Dog: 'dog',
+  Cat: 'cat',
+  Cattle: 'cow',
+};
 
 export const STATUS_LABEL_KEY: Record<CaseStatus, string> = {
   open: 'statusOpen',
@@ -16,12 +23,15 @@ export function CaseRow({ item, onPress }: { item: Case; onPress: () => void }) 
   const { t } = useTranslation();
   const urgency = urgencyColor(item.urgency);
   const status = statusColor(item.status);
-  const initial = item.species.charAt(0).toUpperCase();
 
   return (
     <Pressable style={styles.row} onPress={onPress}>
       <View style={[styles.badge, { backgroundColor: personBadgeColor(item.id) }]}>
-        <Text style={styles.badgeLabel}>{initial}</Text>
+        <MaterialCommunityIcons
+          name={SPECIES_ICON[item.species]}
+          size={22}
+          color={colors.white}
+        />
       </View>
       <View style={{ flex: 1 }}>
         <View style={styles.rowTop}>
@@ -51,7 +61,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   badge: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
-  badgeLabel: { fontFamily: fonts.bold, fontSize: 14, color: colors.white },
   rowTop: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 },
   dot: { width: 8, height: 8, borderRadius: 4 },
   rowSpecies: { fontFamily: fonts.bold, fontSize: 14.5, color: colors.textPrimary },
