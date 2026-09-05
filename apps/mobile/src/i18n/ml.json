@@ -68,6 +68,10 @@
   "services": "സേവനങ്ങള്‍",
   "address": "വിലാസം",
   "call": "വിളിക്കുക",
+  "view": "കാണുക",
+  "statusSectionLabel": "സ്ഥിതി",
+  "chatInputPlaceholder": "സന്ദേശം…",
+  "chatRePrefix": "സംബന്ധിച്ച്:",
   "directions": "വഴി കാണിക്കുക",
 
   "editProfile": "പ്രൊഫൈല്‍ എഡിറ്റ് ചെയ്യുക",

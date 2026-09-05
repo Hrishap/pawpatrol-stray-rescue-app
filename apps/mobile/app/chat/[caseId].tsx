@@ -55,7 +55,9 @@ export default function ChatScreen() {
           </View>
           <View>
             <Text style={styles.name}>{counterpart?.full_name ?? '…'}</Text>
-            <Text style={styles.subtitle}>re: {activeCase?.code}</Text>
+            <Text style={styles.subtitle}>
+              {t('chatRePrefix')} {activeCase?.code}
+            </Text>
           </View>
         </View>
 
@@ -80,7 +82,7 @@ export default function ChatScreen() {
           <TextInput
             value={input}
             onChangeText={setInput}
-            placeholder="Message…"
+            placeholder={t('chatInputPlaceholder')}
             placeholderTextColor={colors.textMuted45}
             style={styles.input}
             onSubmitEditing={send}

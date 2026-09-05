@@ -156,7 +156,7 @@ export function MapScreen({ variant }: MapScreenProps) {
               style={styles.popupButton}
               onPress={() => router.push(`/case/${selectedCase.id}`)}
             >
-              <Text style={styles.popupButtonLabel}>View</Text>
+              <Text style={styles.popupButtonLabel}>{t('view')}</Text>
             </Pressable>
           </View>
         )}

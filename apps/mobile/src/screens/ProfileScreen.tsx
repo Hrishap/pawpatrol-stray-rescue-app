@@ -4,6 +4,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View
 
 import { BottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
+import { Loading } from '@/components/Loading';
 import { useAuth } from '@/hooks/useAuth';
 import { useCases } from '@/hooks/useCases';
 import i18n, { type LanguageCode, SUPPORTED_LANGUAGES } from '@/lib/i18n';
@@ -38,7 +39,7 @@ export function ProfileScreen() {
     };
   }, [cases, session]);
 
-  if (!profile) return null;
+  if (!profile) return <Loading />;
 
   const saveName = async () => {
     await supabase.from('profiles').update({ full_name: nameDraft || profile.full_name }).eq('id', profile.id);

@@ -14,7 +14,7 @@ const URGENCY_RANK: Record<string, number> = { critical: 0, attention: 1, monito
 export default function NgoDashboard() {
   const { t } = useTranslation();
   const { profile } = useAuth();
-  const { data: cases = [] } = useCases();
+  const { data: cases = [], isLoading } = useCases();
   const { data: volunteers = [] } = useVolunteers();
 
   const stats = useMemo(
@@ -52,7 +52,9 @@ export default function NgoDashboard() {
         data={urgentList}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        ListEmptyComponent={<Text style={styles.empty}>{t('nothingHere')}</Text>}
+        ListEmptyComponent={
+          <Text style={styles.empty}>{isLoading ? t('loading') : t('nothingHere')}</Text>
+        }
         renderItem={({ item }) => <CaseRow item={item} onPress={() => router.push(`/case/${item.id}`)} />}
       />
     </View>

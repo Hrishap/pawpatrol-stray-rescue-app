@@ -7,6 +7,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 
 import { BottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
 import { LeafletMap } from '@/components/LeafletMap';
+import { Loading } from '@/components/Loading';
 import { useAuth } from '@/hooks/useAuth';
 import {
   advanceCase,
@@ -60,7 +61,7 @@ export default function CaseDetailScreen() {
 
   const uid = session?.user.id;
 
-  if (!activeCase || !profile) return null;
+  if (!activeCase || !profile) return <Loading />;
 
   const urgency = urgencyColor(activeCase.urgency);
   const currentStep = stepIndexForStatus(activeCase.status);
@@ -162,7 +163,7 @@ export default function CaseDetailScreen() {
             </View>
           )}
 
-          <Text style={styles.sectionLabel}>Status</Text>
+          <Text style={styles.sectionLabel}>{t('statusSectionLabel')}</Text>
           <View style={styles.timeline}>
             {TIMELINE_STEPS.map((step, i) => {
               const done = i <= currentStep;

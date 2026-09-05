@@ -19,7 +19,7 @@ interface CaseListScreenProps {
 export function CaseListScreen({ variant }: CaseListScreenProps) {
   const { t } = useTranslation();
   const { session } = useAuth();
-  const { data: cases = [] } = useCases();
+  const { data: cases = [], isLoading } = useCases();
   const [reporterTab, setReporterTab] = useState<ReporterTab>('reported');
   const [volunteerTab, setVolunteerTab] = useState<VolunteerTab>('nearby');
 
@@ -68,7 +68,9 @@ export function CaseListScreen({ variant }: CaseListScreenProps) {
         data={filtered}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
-        ListEmptyComponent={<Text style={styles.empty}>{t('nothingHere')}</Text>}
+        ListEmptyComponent={
+          <Text style={styles.empty}>{isLoading ? t('loading') : t('nothingHere')}</Text>
+        }
         renderItem={({ item }) => <CaseRow item={item} onPress={() => router.push(`/case/${item.id}`)} />}
       />
     </View>

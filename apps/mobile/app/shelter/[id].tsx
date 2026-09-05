@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { Loading } from '@/components/Loading';
 import { useShelter } from '@/hooks/useShelters';
 import { colors, fonts, fontSize, spacing } from '@/theme';
 
@@ -10,7 +11,7 @@ export default function ShelterDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: shelter } = useShelter(id);
 
-  if (!shelter) return null;
+  if (!shelter) return <Loading />;
 
   const call = () => {
     if (!shelter.phone) {

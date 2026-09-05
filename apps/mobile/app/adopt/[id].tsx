@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
+import { Loading } from '@/components/Loading';
 import { useAdoptableAnimal } from '@/hooks/useShelters';
 import { colors, fonts, fontSize, spacing } from '@/theme';
 
@@ -11,7 +12,7 @@ export default function AdoptDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: animal } = useAdoptableAnimal(id);
 
-  if (!animal) return null;
+  if (!animal) return <Loading />;
 
   return (
     <ScrollView style={styles.container}>
