@@ -71,6 +71,11 @@
   "awaitingRescuer": "Awaiting a rescuer",
   "awaitingVerification": "Awaiting verification",
   "contactedPrefix": "Contacted",
+  "statusOpen": "Open",
+  "statusClaimed": "Claimed",
+  "statusInProgress": "In progress",
+  "statusPendingVerification": "Awaiting verification",
+  "statusResolved": "Resolved",
 
   "myActivity": "My activity",
   "caseQueue": "Case queue",
