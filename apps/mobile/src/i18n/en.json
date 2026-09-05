@@ -10,6 +10,9 @@
   "skip": "Skip",
   "next": "Next",
   "getStarted": "Get started",
+  "slide1": ["Every stray deserves\na chance", "Spot a dog, cat or cow in trouble on the street? Report it in under 30 seconds — no calls, no waiting on hold."],
+  "slide2": ["Nearest rescuer\ngets notified", "Your report reaches volunteers, NGOs and shelters near the location instantly, so help is on the way fast."],
+  "slide3": ["Together, we map\nthe city's care", "Every case you report helps build a live picture of stray welfare across your city — so help goes where it's needed most."],
 
   "howHelp": "How will you help?",
   "howHelpSub": "Pick a role to get started — you can always add more later.",

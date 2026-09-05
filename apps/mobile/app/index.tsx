@@ -1,46 +1,50 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Redirect } from 'expo-router';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { useAuth } from '@/hooks/useAuth';
-import { colors, fonts, fontSize, spacing } from '@/theme';
+import { colors } from '@/theme';
 
-// Temporary placeholder landing screen for the M0 scaffold. M1 replaces this
-// with real auth-state-based redirect logic (onboarding -> role select ->
-// signup/login -> role-gated tabs).
+// Auth-state gate: onboarding -> role select -> signup/login -> role-gated
+// home. Each role's screens (M2 reporter, M3 volunteer/ngo) land here once
+// built; for now each group has a placeholder landing route.
 export default function Index() {
   const { session, profile, loading } = useAuth();
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>PawPatrol</Text>
-      <Text style={styles.subtitle}>
-        {loading
-          ? 'Connecting…'
-          : session
-            ? `Signed in as ${profile?.full_name ?? session.user.email}`
-            : 'Scaffold ready — auth screens land in M1'}
-      </Text>
-    </View>
-  );
+  if (loading) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator color={colors.brand} />
+      </View>
+    );
+  }
+
+  if (!session) {
+    return <Redirect href="/(onboarding)" />;
+  }
+
+  if (!profile) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator color={colors.brand} />
+      </View>
+    );
+  }
+
+  switch (profile.role) {
+    case 'volunteer':
+      return <Redirect href="/(volunteer)" />;
+    case 'ngo':
+      return <Redirect href="/(ngo)" />;
+    default:
+      return <Redirect href="/(reporter)" />;
+  }
 }
 
 const styles = StyleSheet.create({
-  container: {
+  loading: {
     flex: 1,
-    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: spacing.xxl,
-  },
-  title: {
-    fontFamily: fonts.extrabold,
-    fontSize: fontSize.onboardingHeadline,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    fontFamily: fonts.regular,
-    fontSize: fontSize.body,
-    color: colors.textMuted60,
-    textAlign: 'center',
+    backgroundColor: colors.background,
   },
 });
