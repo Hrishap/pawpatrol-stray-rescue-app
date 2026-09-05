@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useId } from 'react';
 
 import { supabase } from '@/lib/supabase';
 import type { Case, CaseStatusHistoryRow } from '@/types/database';
@@ -8,6 +8,11 @@ export const KOCHI_CENTER = { lat: 9.9312, lng: 76.2673 };
 
 export function useCases() {
   const queryClient = useQueryClient();
+  // Channels are cached by topic name, and several screens use this hook at
+  // once (tab navigators keep screens mounted). A shared name meant the second
+  // caller tried to attach listeners to an already-subscribed channel, which
+  // Supabase rejects outright, so scope the topic to this component instance.
+  const channelId = useId();
 
   const query = useQuery({
     queryKey: ['cases'],
@@ -23,7 +28,7 @@ export function useCases() {
 
   useEffect(() => {
     const channel = supabase
-      .channel('cases-list-changes')
+      .channel(`cases-list-changes:${channelId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cases' }, () => {
         queryClient.invalidateQueries({ queryKey: ['cases'] });
       })
@@ -31,13 +36,14 @@ export function useCases() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient]);
+  }, [queryClient, channelId]);
 
   return query;
 }
 
 export function useCase(caseId: string | undefined) {
   const queryClient = useQueryClient();
+  const channelId = useId();
 
   const query = useQuery({
     queryKey: ['case', caseId],
@@ -52,7 +58,7 @@ export function useCase(caseId: string | undefined) {
   useEffect(() => {
     if (!caseId) return;
     const channel = supabase
-      .channel(`case-${caseId}`)
+      .channel(`case-${caseId}:${channelId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'cases', filter: `id=eq.${caseId}` },
@@ -65,7 +71,7 @@ export function useCase(caseId: string | undefined) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [caseId, queryClient]);
+  }, [caseId, queryClient, channelId]);
 
   return query;
 }

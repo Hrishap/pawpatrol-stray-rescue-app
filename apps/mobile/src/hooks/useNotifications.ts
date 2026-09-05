@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useId } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
@@ -8,6 +8,7 @@ import type { NotificationRow } from '@/types/database';
 export function useNotifications() {
   const { session } = useAuth();
   const queryClient = useQueryClient();
+  const channelId = useId();
   const userId = session?.user.id;
 
   const query = useQuery({
@@ -27,7 +28,7 @@ export function useNotifications() {
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
-      .channel(`notifications-${userId}`)
+      .channel(`notifications-${userId}:${channelId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
@@ -39,7 +40,7 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [userId, queryClient]);
+  }, [userId, queryClient, channelId]);
 
   return query;
 }

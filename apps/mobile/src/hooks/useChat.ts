@@ -1,11 +1,12 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect } from 'react';
+import { useEffect, useId } from 'react';
 
 import { supabase } from '@/lib/supabase';
 import type { ChatMessage } from '@/types/database';
 
 export function useChat(caseId: string | undefined) {
   const queryClient = useQueryClient();
+  const channelId = useId();
 
   const query = useQuery({
     queryKey: ['chat', caseId],
@@ -24,7 +25,7 @@ export function useChat(caseId: string | undefined) {
   useEffect(() => {
     if (!caseId) return;
     const channel = supabase
-      .channel(`chat-${caseId}`)
+      .channel(`chat-${caseId}:${channelId}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `case_id=eq.${caseId}` },
@@ -36,7 +37,7 @@ export function useChat(caseId: string | undefined) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [caseId, queryClient]);
+  }, [caseId, queryClient, channelId]);
 
   return query;
 }
