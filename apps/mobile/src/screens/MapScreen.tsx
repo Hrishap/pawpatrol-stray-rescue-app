@@ -104,6 +104,7 @@ export function MapScreen({ variant }: MapScreenProps) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.chipsScroll}
         contentContainerStyle={styles.chipsRow}
       >
         {SPECIES_FILTERS.map((sp) => (
@@ -119,6 +120,7 @@ export function MapScreen({ variant }: MapScreenProps) {
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
+        style={styles.chipsScroll}
         contentContainerStyle={[styles.chipsRow, { paddingBottom: 10 }]}
       >
         {URGENCY_FILTERS.map((u) => (
@@ -234,11 +236,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarLabel: { fontFamily: fonts.bold, fontSize: 15, color: colors.background },
+  // A horizontal ScrollView in a column flex parent will otherwise stretch to
+  // fill the free space, squeezing the map into a sliver at the bottom.
+  chipsScroll: { flexGrow: 0, flexShrink: 0 },
   chipsRow: { paddingHorizontal: spacing.xl, paddingVertical: 4 },
   mapWrap: {
     flex: 1,
     marginHorizontal: 16,
-    marginBottom: 100,
+    // The tab navigator already insets content above the tab bar; adding a
+    // large margin here just left a dead band under the map.
+    marginBottom: 16,
     borderRadius: 20,
     overflow: 'hidden',
   },
