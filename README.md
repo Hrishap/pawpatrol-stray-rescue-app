@@ -12,7 +12,8 @@ inventory, data model, and design tokens the implementation is built from.
 
 - **Mobile**: React Native via [Expo](https://expo.dev) (TypeScript, Expo Router)
 - **Backend**: [Supabase](https://supabase.com) (Postgres, Auth, Storage, Realtime)
-- **Maps**: [Mapbox](https://www.mapbox.com)
+- **Maps**: WebView + [Leaflet](https://leafletjs.com) + OpenStreetMap tiles — free, no account
+  or API key needed anywhere (`src/components/LeafletMap.tsx`)
 - **i18n**: English, Malayalam (മലയാളം), Hindi (हिन्दी) via i18next
 
 ## Repository layout
@@ -30,7 +31,6 @@ design-reference/   Original design spec, screenshots, and source .dc.html
 - The `supabase` CLI and `gh` CLI (see below — installed as prebuilt binaries in this repo's
   setup since Homebrew requires newer Xcode Command Line Tools than this machine has;
   `brew install supabase/tap/supabase gh` will work fine on a machine with up-to-date CLTs)
-- A free [Mapbox](https://www.mapbox.com) account (for map screens, from M2 onward)
 - A free [Expo](https://expo.dev) account (for EAS builds, to install the app on a real device —
   this project has no local iOS Simulator/Xcode available)
 
@@ -59,13 +59,14 @@ to keep — `Profile`, `Case`, `Shelter`, etc.).
 
 ```bash
 cd apps/mobile
-cp .env.example .env   # fill in Supabase + Mapbox values
+cp .env.example .env   # fill in Supabase values
 npm install
 npm run start
 ```
 
-Mapbox (`@rnmapbox/maps`) is a native module, so the map screens require a custom **development
-build** — plain Expo Go won't load it. Build one via EAS (no local Xcode/Android Studio needed):
+`react-native-webview` (used for the map) is a native module, so running on a device requires a
+custom **development build** — plain Expo Go won't load it. Build one via EAS (no local
+Xcode/Android Studio needed):
 
 ```bash
 npx eas login
