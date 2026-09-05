@@ -19,7 +19,13 @@ export function SheltersScreen() {
   const { data: shelters = [] } = useShelters(coords);
   const [view, setView] = useState<ViewMode>('list');
 
-  const pins: MapPin[] = shelters.map((s) => ({ id: s.id, lat: s.lat, lng: s.lng, color: '#1f5d50' }));
+  const pins: MapPin[] = shelters.map((s) => ({
+    id: s.id,
+    lat: s.lat,
+    lng: s.lng,
+    color: colors.brand,
+    label: s.name,
+  }));
 
   return (
     <View style={styles.container}>

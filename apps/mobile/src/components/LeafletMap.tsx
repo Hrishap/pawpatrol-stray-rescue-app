@@ -8,6 +8,8 @@ export interface MapPin {
   lng: number;
   color: string;
   pulse?: boolean;
+  /** Shown as a label beside the pin (e.g. a shelter name). */
+  label?: string;
 }
 
 interface LeafletMapProps {
@@ -117,6 +119,19 @@ function buildHtml({
   @keyframes ppPulse { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(2.2); opacity: 0; } }
   .pp-drag-pin { width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
   .leaflet-control-attribution { font-size: 9px; }
+  .pp-label.leaflet-tooltip {
+    background: #fbf6ea;
+    color: #17302b;
+    border: 1px solid rgba(23,48,43,0.12);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    font-family: -apple-system, system-ui, sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 8px;
+    white-space: nowrap;
+  }
+  .pp-label.leaflet-tooltip::before { display: none; }
 </style>
 </head>
 <body>
@@ -136,6 +151,12 @@ function buildHtml({
     maxZoom: 19,
   }).addTo(map);
 
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
   function post(msg) {
     if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(msg));
   }
@@ -153,6 +174,14 @@ function buildHtml({
         '<div class="pp-pin" style="background:' + p.color + ';"></div></div>';
       var icon = L.divIcon({ html: html, className: '', iconSize: [22, 22], iconAnchor: [11, 11] });
       var marker = L.marker([p.lat, p.lng], { icon: icon }).addTo(pinLayer);
+      if (p.label) {
+        marker.bindTooltip(escapeHtml(p.label), {
+          permanent: true,
+          direction: 'top',
+          offset: [0, -12],
+          className: 'pp-label',
+        });
+      }
       marker.on('click', function () { post({ type: 'pinPress', id: p.id }); });
     });
     // Without this the map sits on the device location, so pins in another
