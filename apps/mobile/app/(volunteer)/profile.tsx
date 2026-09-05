@@ -1,5 +1,5 @@
 import { ProfileScreen } from '@/screens/ProfileScreen';
 
-export default function ReporterProfile() {
+export default function VolunteerProfile() {
   return <ProfileScreen />;
 }
