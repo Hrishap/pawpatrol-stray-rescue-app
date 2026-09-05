@@ -163,5 +163,6 @@
   "cameraUnavailableBody": "Couldn't open the camera on this device. You can upload a photo from your gallery instead.",
   "galleryPermissionBody": "PawPatrol needs photo access to attach a picture to your report.",
   "noSheltersNearby": "No shelters within 50 km of you yet.",
-  "noAdoptablesNearby": "No animals up for adoption near you yet."
+  "noAdoptablesNearby": "No animals up for adoption near you yet.",
+  "allUrgency": "All urgency"
 }

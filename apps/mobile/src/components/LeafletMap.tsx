@@ -44,6 +44,8 @@ export function LeafletMap({
   style,
 }: LeafletMapProps) {
   const webviewRef = useRef<WebView>(null);
+  const centerRef = useRef(center);
+  centerRef.current = center;
 
   // Built once: rebuilding the HTML would reload every tile. Recentering is
   // pushed into the live page below instead.
@@ -89,8 +91,13 @@ export function LeafletMap({
         }
       }}
       onLoadEnd={() => {
+        // Anything pushed before the page finished loading hit an undefined
+        // window.ppSet* and was silently dropped — including the recenter that
+        // fires the moment GPS resolves, which is usually well before Leaflet
+        // has loaded from the CDN. Replay the current state here.
+        const { lat, lng } = centerRef.current;
         webviewRef.current?.injectJavaScript(
-          `window.ppSetPins && window.ppSetPins(${pinsKey}, ${fitToPins}); window.ppSetDraggableMarker && window.ppSetDraggableMarker(${markerKey}); true;`,
+          `window.ppSetCenter && window.ppSetCenter(${lat}, ${lng}); window.ppSetPins && window.ppSetPins(${pinsKey}, ${fitToPins}); window.ppSetDraggableMarker && window.ppSetDraggableMarker(${markerKey}); true;`,
         );
       }}
     />

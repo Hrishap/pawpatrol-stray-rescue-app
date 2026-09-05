@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { SPECIES_ICON } from '@/components/CaseRow';
 import { FilterChip } from '@/components/FilterChip';
@@ -115,40 +115,28 @@ export function MapScreen({ variant }: MapScreenProps) {
         </View>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.chipsScroll}
-        contentContainerStyle={styles.chipsRow}
-      >
+      <View style={styles.chipsRow}>
         {SPECIES_FILTERS.map((sp) => (
-          <View key={sp} style={{ marginRight: 8 }}>
-            <FilterChip
-              label={sp}
-              selected={speciesFilter === sp}
-              onPress={() => setSpeciesFilter(sp)}
-            />
-          </View>
+          <FilterChip
+            key={sp}
+            label={sp}
+            selected={speciesFilter === sp}
+            onPress={() => setSpeciesFilter(sp)}
+          />
         ))}
-      </ScrollView>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.chipsScroll}
-        contentContainerStyle={[styles.chipsRow, { paddingBottom: 10 }]}
-      >
+      </View>
+      <View style={[styles.chipsRow, styles.chipsRowLast]}>
         {URGENCY_FILTERS.map((u) => (
-          <View key={u} style={{ marginRight: 8 }}>
-            <FilterChip
-              label={u === 'All' ? 'All urgency' : t(URGENCY_LABEL_KEY[u])}
-              selected={urgencyFilter === u}
-              onPress={() => setUrgencyFilter(u)}
-              dotColor={u === 'All' ? undefined : urgencyColor(u).color}
-              size="small"
-            />
-          </View>
+          <FilterChip
+            key={u}
+            label={u === 'All' ? t('allUrgency') : t(URGENCY_LABEL_KEY[u])}
+            selected={urgencyFilter === u}
+            onPress={() => setUrgencyFilter(u)}
+            dotColor={u === 'All' ? undefined : urgencyColor(u).color}
+            size="small"
+          />
         ))}
-      </ScrollView>
+      </View>
 
       <View style={styles.mapWrap}>
         <LeafletMap
@@ -250,10 +238,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarLabel: { fontFamily: fonts.bold, fontSize: 15, color: colors.background },
-  // A horizontal ScrollView in a column flex parent will otherwise stretch to
-  // fill the free space, squeezing the map into a sliver at the bottom.
-  chipsScroll: { flexGrow: 0, flexShrink: 0 },
-  chipsRow: { paddingHorizontal: spacing.xl, paddingVertical: 4 },
+  // Filters wrap onto as many lines as they need rather than scrolling
+  // horizontally: on a phone an off-screen chip is a filter nobody discovers,
+  // and it required a swipe that competed with the map's own gestures.
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: 4,
+  },
+  chipsRowLast: { paddingBottom: 10 },
   mapWrap: {
     flex: 1,
     marginHorizontal: 16,
