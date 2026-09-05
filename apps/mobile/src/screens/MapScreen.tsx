@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -12,6 +12,7 @@ import { claimCase, useCases } from '@/hooks/useCases';
 import { useDeviceLocation } from '@/hooks/useDeviceLocation';
 import { useNotifications } from '@/hooks/useNotifications';
 import { formatDistance, haversineKm } from '@/lib/format';
+import { reverseGeocodeLocality } from '@/lib/geocode';
 import { colors, fonts, spacing, urgencyColor } from '@/theme';
 import type { CaseSpecies, CaseUrgency } from '@/types/database';
 
@@ -37,6 +38,19 @@ export function MapScreen({ variant }: MapScreenProps) {
   const [urgencyFilter, setUrgencyFilter] = useState<CaseUrgency | 'All'>('All');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [claiming, setClaiming] = useState(false);
+  const [locality, setLocality] = useState<string | null>(null);
+
+  // Resolve the header label from the device's actual position instead of the
+  // design's hardcoded "Kochi, Kerala".
+  useEffect(() => {
+    let cancelled = false;
+    reverseGeocodeLocality(coords.lat, coords.lng).then((name) => {
+      if (!cancelled && name) setLocality(name);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [coords.lat, coords.lng]);
 
   const hasUnread = notifications.some((n) => !n.read_at);
 
@@ -90,7 +104,7 @@ export function MapScreen({ variant }: MapScreenProps) {
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
           <Text style={styles.headerLabel}>{t('liveRescueMap')}</Text>
-          <Text style={styles.headerLocation}>{t('location')}</Text>
+          <Text style={styles.headerLocation}>{locality ?? t('locatingLabel')}</Text>
         </View>
         <Pressable onPress={() => router.push('/notifications')} style={styles.iconButton}>
           <Text style={styles.iconGlyph}>🔔</Text>

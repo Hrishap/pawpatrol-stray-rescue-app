@@ -15,6 +15,10 @@ export default function ReportStep3() {
   const { t } = useTranslation();
   const { draft, update } = useReportDraft();
   const [locating, setLocating] = useState(true);
+  // The map recenters whenever `center` changes, so track the pin position
+  // separately: feeding the live draft coords back in would yank the map
+  // back under the user's finger on every drag.
+  const [mapCenter, setMapCenter] = useState({ lat: draft.lat, lng: draft.lng });
   const geocodeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -26,6 +30,7 @@ export default function ReportStep3() {
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
           update({ lat, lng });
+          setMapCenter({ lat, lng });
           const address = await reverseGeocode(lat, lng);
           update({ address });
         } catch {
@@ -55,7 +60,7 @@ export default function ReportStep3() {
 
         <View style={styles.mapWrap}>
           <LeafletMap
-            center={{ lat: draft.lat, lng: draft.lng }}
+            center={mapCenter}
             draggableMarker={{ lat: draft.lat, lng: draft.lng }}
             onDraggableMarkerMove={onMarkerMove}
             onMapPress={onMarkerMove}

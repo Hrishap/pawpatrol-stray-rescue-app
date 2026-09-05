@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { BottomSheet } from '@/components/BottomSheet';
 import { ReportHeader } from '@/components/ReportHeader';
@@ -20,23 +20,41 @@ export default function ReportStep1() {
     router.push('/report/step2');
   };
 
+  // Picking a photo can fail for reasons outside our control — permission
+  // denied, or no camera at all (the iOS Simulator has none, where
+  // launchCameraAsync throws). Unhandled, that rejection took the whole app
+  // down instead of telling the reporter what went wrong.
   const takePhoto = async () => {
     setSheetOpen(false);
-    const perm = await ImagePicker.requestCameraPermissionsAsync();
-    if (!perm.granted) return;
-    const result = await ImagePicker.launchCameraAsync({ quality: 0.7, allowsEditing: false });
-    if (!result.canceled && result.assets[0]) handlePicked(result.assets[0].uri);
+    try {
+      const perm = await ImagePicker.requestCameraPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(t('permissionNeededTitle'), t('cameraPermissionBody'));
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({ quality: 0.7, allowsEditing: false });
+      if (!result.canceled && result.assets[0]) handlePicked(result.assets[0].uri);
+    } catch {
+      Alert.alert(t('cameraUnavailableTitle'), t('cameraUnavailableBody'));
+    }
   };
 
   const pickFromGallery = async () => {
     setSheetOpen(false);
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      quality: 0.7,
-      mediaTypes: ['images'],
-    });
-    if (!result.canceled && result.assets[0]) handlePicked(result.assets[0].uri);
+    try {
+      const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!perm.granted) {
+        Alert.alert(t('permissionNeededTitle'), t('galleryPermissionBody'));
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        quality: 0.7,
+        mediaTypes: ['images'],
+      });
+      if (!result.canceled && result.assets[0]) handlePicked(result.assets[0].uri);
+    } catch {
+      Alert.alert(t('somethingWentWrong'));
+    }
   };
 
   return (

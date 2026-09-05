@@ -40,10 +40,21 @@ export function LeafletMap({
 }: LeafletMapProps) {
   const webviewRef = useRef<WebView>(null);
 
+  // Built once: rebuilding the HTML would reload every tile. Recentering is
+  // pushed into the live page below instead.
   const html = useMemo(() => buildHtml({ center, zoom, interactive }), []);
 
   // Push pin/marker updates into the already-loaded page instead of
   // reloading the WebView, so filtering/realtime updates don't flicker.
+  // The initial center is captured in the HTML above, which is built before
+  // GPS resolves — so without this the map stayed on the fallback location
+  // even once the device's real position arrived.
+  React.useEffect(() => {
+    webviewRef.current?.injectJavaScript(
+      `window.ppSetCenter && window.ppSetCenter(${center.lat}, ${center.lng}); true;`,
+    );
+  }, [center.lat, center.lng]);
+
   const pinsKey = JSON.stringify(pins);
   const markerKey = JSON.stringify(draggableMarker ?? null);
   React.useEffect(() => {
@@ -125,6 +136,10 @@ function buildHtml({
   function post(msg) {
     if (window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(msg));
   }
+
+  window.ppSetCenter = function (lat, lng) {
+    map.setView([lat, lng], map.getZoom());
+  };
 
   var pinLayer = L.layerGroup().addTo(map);
   window.ppSetPins = function (pins) {
