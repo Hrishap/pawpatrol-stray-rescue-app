@@ -31,13 +31,15 @@ export default function Index() {
     return <Redirect href="/(onboarding)" />;
   }
 
+  // Target each group's first tab explicitly — the bare group paths have no
+  // index route to resolve to.
   switch (profile.role) {
     case 'volunteer':
-      return <Redirect href="/(volunteer)" />;
+      return <Redirect href="/(volunteer)/queue" />;
     case 'ngo':
-      return <Redirect href="/(ngo)" />;
+      return <Redirect href="/(ngo)/dashboard" />;
     default:
-      return <Redirect href="/(reporter)" />;
+      return <Redirect href="/(reporter)/map" />;
   }
 }
 
